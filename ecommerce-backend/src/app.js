@@ -3,9 +3,13 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
+const swaggerUi = require("swagger-ui-express");
 const { connectDB } = require("./config/db");
+const { buildSwaggerSpec } = require("./config/swagger");
 const logger = require("./utils/logger");
 const { errorHandler, notFoundHandler } = require("./middlewares/error.middleware");
+const categoryRoutes = require("./routes/category.routes");
+const productRoutes = require("./routes/product.routes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -18,6 +22,12 @@ app.use(express.json());
 app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "nexora-ecommerce-api" });
 });
+
+const swaggerSpec = buildSwaggerSpec();
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, { explorer: true }));
+
+app.use("/api/categories", categoryRoutes);
+app.use("/api/products", productRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
