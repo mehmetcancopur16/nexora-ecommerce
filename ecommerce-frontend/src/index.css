@@ -1,0 +1,12 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-nexora-primary: #0ea5e9;
+  --color-nexora-accent: #f43f5e;
+  --color-nexora-bg: #f8fafc;
+  --color-nexora-text: #0f172a;
+}
+
+body {
+  margin: 0;
+}
