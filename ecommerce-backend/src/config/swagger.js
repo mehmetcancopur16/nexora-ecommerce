@@ -21,6 +21,15 @@ function buildSwaggerSpec() {
           },
         },
         schemas: {
+          UserMinimal: {
+            type: "object",
+            properties: {
+              _id: { type: "string" },
+              email: { type: "string", example: "user@nexora.com" },
+              role: { type: "string", example: "user" },
+              name: { type: "string", example: "Nexora User" },
+            },
+          },
           Category: {
             type: "object",
             properties: {
@@ -44,6 +53,84 @@ function buildSwaggerSpec() {
               isActive: { type: "boolean", example: true },
               createdAt: { type: "string", format: "date-time" },
               updatedAt: { type: "string", format: "date-time" },
+            },
+          },
+          CartItem: {
+            type: "object",
+            properties: {
+              product: { $ref: "#/components/schemas/Product" },
+              quantity: { type: "integer", example: 2 },
+            },
+          },
+          Cart: {
+            type: "object",
+            properties: {
+              _id: { type: "string" },
+              user: { type: "string" },
+              items: {
+                type: "array",
+                items: { $ref: "#/components/schemas/CartItem" },
+              },
+              createdAt: { type: "string", format: "date-time" },
+              updatedAt: { type: "string", format: "date-time" },
+            },
+          },
+          ShippingAddress: {
+            type: "object",
+            required: ["street", "city", "zip"],
+            properties: {
+              street: { type: "string", example: "Ataturk Caddesi 10" },
+              city: { type: "string", example: "Istanbul" },
+              zip: { type: "string", example: "34000" },
+            },
+          },
+          OrderItem: {
+            type: "object",
+            properties: {
+              product: { $ref: "#/components/schemas/Product" },
+              quantity: { type: "integer", example: 2 },
+              price: { type: "number", example: 199.99 },
+            },
+          },
+          Order: {
+            type: "object",
+            properties: {
+              _id: { type: "string" },
+              user: {
+                oneOf: [
+                  { type: "string" },
+                  { $ref: "#/components/schemas/UserMinimal" },
+                ],
+              },
+              items: {
+                type: "array",
+                items: { $ref: "#/components/schemas/OrderItem" },
+              },
+              totalAmount: { type: "number", example: 399.98 },
+              status: {
+                type: "string",
+                enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
+              },
+              shippingAddress: { $ref: "#/components/schemas/ShippingAddress" },
+              createdAt: { type: "string", format: "date-time" },
+              updatedAt: { type: "string", format: "date-time" },
+            },
+          },
+          CreateOrderBody: {
+            type: "object",
+            required: ["shippingAddress"],
+            properties: {
+              shippingAddress: { $ref: "#/components/schemas/ShippingAddress" },
+            },
+          },
+          OrderStatusUpdate: {
+            type: "object",
+            required: ["status"],
+            properties: {
+              status: {
+                type: "string",
+                enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
+              },
             },
           },
           Pagination: {
