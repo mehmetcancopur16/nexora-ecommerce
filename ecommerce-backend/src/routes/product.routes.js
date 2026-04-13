@@ -2,6 +2,7 @@ const express = require("express");
 const productController = require("../controllers/product.controller");
 const { authMiddleware } = require("../middlewares/auth.middleware");
 const { requireRoles } = require("../middlewares/role.middleware");
+const { upload } = require("../middlewares/upload.middleware");
 const { validateBody, validateQuery } = require("../middlewares/validate.middleware");
 const {
   createProductSchema,
@@ -245,6 +246,59 @@ router.delete(
   authMiddleware,
   requireRoles("admin"),
   productController.deleteProduct
+);
+
+/**
+ * @openapi
+ * /api/products/{id}/upload:
+ *   post:
+ *     tags: [Products]
+ *     summary: Ürüne görsel yükle (Admin)
+ *     description: |
+ *       Yalnızca admin erişimi vardır. `multipart/form-data` ile `images` alanında en fazla 5 dosya kabul edilir.
+ *       Sadece `image/jpeg`, `image/png`, `image/webp` desteklenir; dosya başına limit 5MB'dır.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           pattern: '^[a-fA-F0-9]{24}$'
+ *         description: Ürün ObjectId
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required: [images]
+ *             properties:
+ *               images:
+ *                 type: array
+ *                 maxItems: 5
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *     responses:
+ *       200:
+ *         description: Görseller başarıyla yüklendi
+ *       400:
+ *         description: Geçersiz id, dosya türü veya dosya boyutu
+ *       401:
+ *         description: Yetkisiz
+ *       403:
+ *         description: Yasak
+ *       404:
+ *         description: Ürün bulunamadı
+ */
+router.post(
+  "/:id/upload",
+  authMiddleware,
+  requireRoles("admin"),
+  upload.array("images", 5),
+  productController.uploadProductImages
 );
 
 module.exports = router;

@@ -123,3 +123,32 @@ exports.deleteProduct = asyncHandler(async (req, res) => {
     data: product,
   });
 });
+
+exports.uploadProductImages = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new ApiError(400, "Geçersiz ürün kimliği", true);
+  }
+
+  if (!req.files || req.files.length === 0) {
+    throw new ApiError(400, "Yüklenecek en az bir görsel gerekli", true);
+  }
+
+  const imageUrls = req.files.map((file) => `/uploads/${file.filename}`);
+
+  const product = await Product.findByIdAndUpdate(
+    id,
+    { $push: { images: { $each: imageUrls } } },
+    { new: true, runValidators: true }
+  ).populate({ path: "category", select: "name description" });
+
+  if (!product) {
+    throw new ApiError(404, "Ürün bulunamadı", true);
+  }
+
+  res.json({
+    success: true,
+    message: "Ürün görselleri başarıyla yüklendi",
+    data: product,
+  });
+});

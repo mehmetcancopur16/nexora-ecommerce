@@ -1,4 +1,5 @@
 require("dotenv").config();
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
@@ -20,6 +21,7 @@ app.use(helmet());
 app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "nexora-ecommerce-api" });
