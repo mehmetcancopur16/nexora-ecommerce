@@ -1,7 +1,8 @@
 const jwt = require("jsonwebtoken");
 const ApiError = require("../utils/apiError");
+const User = require("../models/User.model");
 
-function authMiddleware(req, res, next) {
+async function authMiddleware(req, res, next) {
   const header = req.headers.authorization;
   if (!header || !header.startsWith("Bearer ")) {
     return next(new ApiError(401, "Yetkilendirme gerekli", true));
@@ -26,10 +27,18 @@ function authMiddleware(req, res, next) {
       return next(new ApiError(401, "Geçersiz token içeriği", true));
     }
 
+    const user = await User.findById(id).select("email role isActive");
+    if (!user) {
+      return next(new ApiError(401, "Kullanıcı bulunamadı", true));
+    }
+    if (!user.isActive) {
+      return next(new ApiError(403, "Hesabınız pasif durumda", true));
+    }
+
     req.user = {
-      id: String(id),
-      role: String(role),
-      email: payload.email,
+      id: String(user._id),
+      role: String(user.role || role),
+      email: user.email || payload.email,
     };
     return next();
   } catch {

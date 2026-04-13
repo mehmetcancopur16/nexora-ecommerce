@@ -54,6 +54,13 @@ function buildSwaggerSpec() {
               newPassword: { type: "string", example: "NewSecurePass123" },
             },
           },
+          AdminUserUpdate: {
+            type: "object",
+            properties: {
+              role: { type: "string", enum: ["user", "admin"] },
+              isActive: { type: "boolean", example: false },
+            },
+          },
           Category: {
             type: "object",
             properties: {
@@ -186,6 +193,52 @@ function buildSwaggerSpec() {
               product: { type: "string", pattern: "^[a-fA-F0-9]{24}$" },
               rating: { type: "integer", minimum: 1, maximum: 5 },
               comment: { type: "string" },
+            },
+          },
+          WishlistResponse: {
+            type: "object",
+            properties: {
+              success: { type: "boolean", example: true },
+              data: {
+                type: "array",
+                items: { $ref: "#/components/schemas/Product" },
+              },
+            },
+          },
+          OrderStatusBreakdown: {
+            type: "object",
+            properties: {
+              status: {
+                type: "string",
+                enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
+              },
+              count: { type: "integer", example: 12 },
+            },
+          },
+          LowStockProduct: {
+            type: "object",
+            properties: {
+              _id: { type: "string" },
+              name: { type: "string", example: "Nexora Kulaklık" },
+              stock: { type: "integer", example: 4 },
+              price: { type: "number", example: 999.9 },
+              category: { type: "string" },
+            },
+          },
+          AdminDashboardStats: {
+            type: "object",
+            properties: {
+              totalUsers: { type: "integer", example: 145 },
+              totalOrders: { type: "integer", example: 420 },
+              totalRevenue: { type: "number", example: 125000.5 },
+              orderStatusDistribution: {
+                type: "array",
+                items: { $ref: "#/components/schemas/OrderStatusBreakdown" },
+              },
+              lowStockProducts: {
+                type: "array",
+                items: { $ref: "#/components/schemas/LowStockProduct" },
+              },
             },
           },
           Pagination: {

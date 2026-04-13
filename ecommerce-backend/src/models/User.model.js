@@ -20,8 +20,10 @@ const userSchema = new mongoose.Schema(
       default: "user",
       required: true,
     },
+    isActive: { type: Boolean, default: true, index: true },
     name: { type: String, trim: true, default: "" },
     address: { type: addressSchema, default: () => ({}) },
+    wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
   },
   { timestamps: true }
 );

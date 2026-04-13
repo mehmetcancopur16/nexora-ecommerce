@@ -1,5 +1,10 @@
 const { z } = require("zod");
 
+const objectIdSchema = z
+  .string()
+  .length(24, "Geçersiz ObjectId")
+  .regex(/^[a-fA-F0-9]{24}$/, "Geçersiz ObjectId");
+
 const updateProfileSchema = z
   .object({
     name: z.string().trim().min(2, "İsim en az 2 karakter olmalı").max(80).optional(),
@@ -25,7 +30,12 @@ const updatePasswordSchema = z.object({
     .regex(/[0-9]/, "Yeni şifre en az bir rakam içermeli"),
 });
 
+const wishlistParamSchema = z.object({
+  productId: objectIdSchema,
+});
+
 module.exports = {
   updateProfileSchema,
   updatePasswordSchema,
+  wishlistParamSchema,
 };
