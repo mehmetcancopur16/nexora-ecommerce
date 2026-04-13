@@ -12,6 +12,8 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
     images: [{ type: String }],
+    averageRating: { type: Number, default: 0, min: 0, max: 5 },
+    numOfReviews: { type: Number, default: 0, min: 0 },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }

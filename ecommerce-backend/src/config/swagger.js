@@ -28,6 +28,30 @@ function buildSwaggerSpec() {
               email: { type: "string", example: "user@nexora.com" },
               role: { type: "string", example: "user" },
               name: { type: "string", example: "Nexora User" },
+              address: { $ref: "#/components/schemas/Address" },
+            },
+          },
+          Address: {
+            type: "object",
+            properties: {
+              street: { type: "string", example: "Ataturk Caddesi 10" },
+              city: { type: "string", example: "Istanbul" },
+              zip: { type: "string", example: "34000" },
+            },
+          },
+          ProfileUpdate: {
+            type: "object",
+            properties: {
+              name: { type: "string", example: "Mehmet Can" },
+              address: { $ref: "#/components/schemas/Address" },
+            },
+          },
+          PasswordUpdate: {
+            type: "object",
+            required: ["currentPassword", "newPassword"],
+            properties: {
+              currentPassword: { type: "string", example: "CurrentPass123" },
+              newPassword: { type: "string", example: "NewSecurePass123" },
             },
           },
           Category: {
@@ -131,6 +155,37 @@ function buildSwaggerSpec() {
                 type: "string",
                 enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
               },
+            },
+          },
+          Review: {
+            type: "object",
+            properties: {
+              _id: { type: "string" },
+              user: {
+                oneOf: [
+                  { type: "string" },
+                  { $ref: "#/components/schemas/UserMinimal" },
+                ],
+              },
+              product: {
+                oneOf: [
+                  { type: "string" },
+                  { $ref: "#/components/schemas/Product" },
+                ],
+              },
+              rating: { type: "integer", minimum: 1, maximum: 5, example: 5 },
+              comment: { type: "string", example: "Harika bir ürün." },
+              createdAt: { type: "string", format: "date-time" },
+              updatedAt: { type: "string", format: "date-time" },
+            },
+          },
+          ReviewCreate: {
+            type: "object",
+            required: ["product", "rating"],
+            properties: {
+              product: { type: "string", pattern: "^[a-fA-F0-9]{24}$" },
+              rating: { type: "integer", minimum: 1, maximum: 5 },
+              comment: { type: "string" },
             },
           },
           Pagination: {
