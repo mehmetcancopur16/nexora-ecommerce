@@ -1,13 +1,32 @@
+import { useEffect } from "react"
+import { BrowserRouter, Route, Routes } from "react-router"
+import MainLayout from "./components/layout/MainLayout"
+import Cart from "./pages/Cart"
+import Home from "./pages/Home"
+import Login from "./pages/Login"
+import Products from "./pages/Products"
+import Register from "./pages/Register"
+import { useAuthStore } from "./store/authStore"
+
 function App() {
+  const checkAuth = useAuthStore((state) => state.checkAuth)
+
+  useEffect(() => {
+    checkAuth()
+  }, [checkAuth])
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-2 bg-nexora-bg px-4">
-      <h1 className="text-center text-2xl font-semibold text-nexora-primary md:text-3xl">
-        Nexora E-Ticaret Platformuna Hoş Geldiniz
-      </h1>
-      <p className="text-center text-sm text-nexora-text/80">
-        Yeni Nesil Alışveriş, Kesintisiz Güven.
-      </p>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<Home />} />
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+          <Route path="products" element={<Products />} />
+          <Route path="cart" element={<Cart />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   )
 }
 
