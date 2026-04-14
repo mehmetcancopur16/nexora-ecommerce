@@ -81,6 +81,12 @@ router.get("/", categoryController.getAllCategories);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
+ *       400:
+ *         description: Geçersiz istek verisi
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post(
   "/",

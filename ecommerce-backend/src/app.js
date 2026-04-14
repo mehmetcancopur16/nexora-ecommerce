@@ -44,6 +44,10 @@ app.use(express.json());
 app.use("/api", globalLimiter);
 app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
+app.get("/api/health", (_req, res) => {
+  res.json({ ok: true, service: "nexora-ecommerce-api" });
+});
+
 app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "nexora-ecommerce-api" });
 });

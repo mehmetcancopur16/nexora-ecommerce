@@ -37,8 +37,16 @@ router.use(authMiddleware);
  *         description: Başarılı
  *       401:
  *         description: Yetkisiz
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       404:
  *         description: Kullanıcı bulunamadı
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get("/me", userController.getMe);
 
@@ -61,10 +69,22 @@ router.get("/me", userController.getMe);
  *         description: Profil güncellendi
  *       400:
  *         description: Geçersiz veri
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       401:
  *         description: Yetkisiz
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       404:
  *         description: Kullanıcı bulunamadı
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.patch(
   "/profile",
@@ -92,10 +112,22 @@ router.patch(
  *         description: Şifre güncellendi
  *       400:
  *         description: Mevcut şifre hatalı veya geçersiz veri
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       401:
  *         description: Yetkisiz
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       404:
  *         description: Kullanıcı bulunamadı
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.patch(
   "/password",
@@ -121,6 +153,10 @@ router.patch(
  *               $ref: '#/components/schemas/WishlistResponse'
  *       401:
  *         description: Yetkisiz
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get("/wishlist", userController.getWishlist);
 
@@ -149,8 +185,16 @@ router.get("/wishlist", userController.getWishlist);
  *               $ref: '#/components/schemas/WishlistResponse'
  *       401:
  *         description: Yetkisiz
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       404:
  *         description: Ürün veya kullanıcı bulunamadı
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.patch(
   "/wishlist/:productId",

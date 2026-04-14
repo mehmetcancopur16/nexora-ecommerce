@@ -33,10 +33,22 @@ router.use(authMiddleware);
  *         description: Sipariş oluşturuldu
  *       400:
  *         description: Sepet boş veya geçersiz veri
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       401:
  *         description: Yetkisiz
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       409:
  *         description: Stok yetersiz
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post("/", validateBody(createOrderSchema), orderController.createOrder);
 
@@ -53,6 +65,10 @@ router.post("/", validateBody(createOrderSchema), orderController.createOrder);
  *         description: Başarılı
  *       401:
  *         description: Yetkisiz
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get("/my", orderController.getMyOrders);
 
@@ -69,8 +85,16 @@ router.get("/my", orderController.getMyOrders);
  *         description: Başarılı
  *       401:
  *         description: Yetkisiz
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       403:
  *         description: Yasak
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get("/", requireRoles("admin"), orderController.getAllOrders);
 
@@ -100,12 +124,28 @@ router.get("/", requireRoles("admin"), orderController.getAllOrders);
  *         description: Sipariş güncellendi
  *       400:
  *         description: Geçersiz veri
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       401:
  *         description: Yetkisiz
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       403:
  *         description: Yasak
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       404:
  *         description: Sipariş bulunamadı
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.patch(
   "/:id/status",

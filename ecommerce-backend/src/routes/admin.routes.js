@@ -36,8 +36,16 @@ router.use(authMiddleware, requireRoles("admin"));
  *                   $ref: '#/components/schemas/AdminDashboardStats'
  *       401:
  *         description: Yetkisiz
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       403:
  *         description: Admin yetkisi gerekli
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get("/dashboard", adminController.getDashboardStats);
 
@@ -73,8 +81,16 @@ router.get("/dashboard", adminController.getDashboardStats);
  *         description: Başarılı
  *       401:
  *         description: Yetkisiz
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       403:
  *         description: Admin yetkisi gerekli
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get("/users", validateQuery(adminUsersQuerySchema), adminController.getAllUsers);
 
@@ -104,12 +120,28 @@ router.get("/users", validateQuery(adminUsersQuerySchema), adminController.getAl
  *         description: Kullanıcı güncellendi
  *       400:
  *         description: Geçersiz veri
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       401:
  *         description: Yetkisiz
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       403:
  *         description: Admin yetkisi gerekli
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       404:
  *         description: Kullanıcı bulunamadı
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.patch(
   "/users/:id",
@@ -138,10 +170,22 @@ router.patch(
  *         description: Kullanıcı silindi
  *       401:
  *         description: Yetkisiz
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       403:
  *         description: Admin yetkisi gerekli
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       404:
  *         description: Kullanıcı bulunamadı
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.delete("/users/:id", validateParams(adminUserIdParamSchema), adminController.deleteUser);
 

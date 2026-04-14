@@ -122,10 +122,22 @@ router.get(
  *         description: Oluşturuldu
  *       401:
  *         description: Yetkisiz
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       403:
  *         description: Yasak
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       400:
  *         description: Doğrulama veya geçersiz kategori
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post(
   "/",
@@ -149,12 +161,17 @@ router.post(
  *         required: true
  *         schema:
  *           type: string
+ *           pattern: '^[a-fA-F0-9]{24}$'
  *         description: Ürün ObjectId
  *     responses:
  *       200:
  *         description: Başarılı
  *       404:
  *         description: Bulunamadı veya pasif ürün
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get("/:id", productController.getProductById);
 
@@ -173,6 +190,7 @@ router.get("/:id", productController.getProductById);
  *         required: true
  *         schema:
  *           type: string
+ *           pattern: '^[a-fA-F0-9]{24}$'
  *     requestBody:
  *       required: true
  *       content:
@@ -203,10 +221,22 @@ router.get("/:id", productController.getProductById);
  *         description: Güncellendi
  *       401:
  *         description: Yetkisiz
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       403:
  *         description: Yasak
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       404:
  *         description: Ürün bulunamadı
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.put(
   "/:id",
@@ -231,15 +261,28 @@ router.put(
  *         required: true
  *         schema:
  *           type: string
+ *           pattern: '^[a-fA-F0-9]{24}$'
  *     responses:
  *       200:
  *         description: Pasifleştirildi
  *       401:
  *         description: Yetkisiz
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       403:
  *         description: Yasak
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       404:
  *         description: Ürün bulunamadı
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.delete(
   "/:id",
@@ -286,12 +329,28 @@ router.delete(
  *         description: Görseller başarıyla yüklendi
  *       400:
  *         description: Geçersiz id, dosya türü veya dosya boyutu
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       401:
  *         description: Yetkisiz
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       403:
  *         description: Yasak
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       404:
  *         description: Ürün bulunamadı
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post(
   "/:id/upload",

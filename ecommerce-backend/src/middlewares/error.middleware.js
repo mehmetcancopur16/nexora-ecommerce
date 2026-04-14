@@ -30,6 +30,12 @@ function errorHandler(err, req, res, next) {
   } else if (err.code === 11000) {
     statusCode = 409;
     error = new ApiError(409, "Bu kayıt zaten mevcut", true);
+  } else if (err.name === "MongoServerSelectionError") {
+    statusCode = 503;
+    error = new ApiError(503, "Veritabani servisine ulasilamiyor", false);
+  } else if (err.name === "MongoServerError") {
+    statusCode = 500;
+    error = new ApiError(500, "Veritabani islemi sirasinda bir hata olustu", false);
   } else if (err instanceof mongoose.Error.ValidationError) {
     statusCode = 400;
     error = new ApiError(400, mapMongooseValidation(err), true);
