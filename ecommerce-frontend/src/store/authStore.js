@@ -5,6 +5,12 @@ const TOKEN_KEY = "nexora_token"
 const LOGIN_PATH = import.meta.env.VITE_AUTH_LOGIN_PATH || "/auth/login"
 const REGISTER_PATH = import.meta.env.VITE_AUTH_REGISTER_PATH || "/auth/register"
 
+const getApiErrorMessage = (error, fallbackMessage) =>
+  error?.response?.data?.message ||
+  error?.response?.data?.error ||
+  error?.message ||
+  fallbackMessage
+
 const getToken = () => localStorage.getItem(TOKEN_KEY)
 const setToken = (token) => localStorage.setItem(TOKEN_KEY, token)
 const clearToken = () => localStorage.removeItem(TOKEN_KEY)
@@ -29,6 +35,8 @@ export const useAuthStore = create((set, get) => ({
       }
       await get().checkAuth()
       return response.data
+    } catch (error) {
+      throw new Error(getApiErrorMessage(error, "Giris yapilirken bir hata olustu."))
     } finally {
       set({ isLoading: false })
     }
@@ -44,6 +52,8 @@ export const useAuthStore = create((set, get) => ({
         await get().checkAuth()
       }
       return response.data
+    } catch (error) {
+      throw new Error(getApiErrorMessage(error, "Kayit olurken bir hata olustu."))
     } finally {
       set({ isLoading: false })
     }
