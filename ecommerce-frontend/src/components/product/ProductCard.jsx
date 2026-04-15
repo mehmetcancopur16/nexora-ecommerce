@@ -1,5 +1,7 @@
 import { Link } from "react-router"
 import { toast } from "sonner"
+import { useAuthStore } from "../../store/authStore"
+import { useCartStore } from "../../store/cartStore"
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api").replace(/\/api$/, "")
 
@@ -25,7 +27,23 @@ const renderStars = (rating) => {
 }
 
 function ProductCard({ product }) {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const addItem = useCartStore((state) => state.addItem)
   const image = getImageSource(product?.images?.[0])
+
+  const handleAddToCart = async () => {
+    if (!isAuthenticated) {
+      toast.error("Sepete eklemek icin giris yapmalisiniz.")
+      return
+    }
+
+    try {
+      await addItem({ productId: product?._id, quantity: 1 })
+      toast.success("Urun sepete eklendi.")
+    } catch (error) {
+      toast.error(error.message)
+    }
+  }
 
   return (
     <article className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
@@ -57,7 +75,7 @@ function ProductCard({ product }) {
 
         <button
           type="button"
-          onClick={() => toast.success("Urun sepete eklendi (demo).")}
+          onClick={handleAddToCart}
           className="w-full rounded-xl bg-nexora-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-600"
         >
           Sepete Ekle

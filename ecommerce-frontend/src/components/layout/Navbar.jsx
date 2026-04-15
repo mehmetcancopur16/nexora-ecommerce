@@ -1,10 +1,20 @@
+import { useEffect } from "react"
 import { Link, NavLink } from "react-router"
 import { useAuthStore } from "../../store/authStore"
+import { useCartStore } from "../../store/cartStore"
 
 function Navbar() {
   const user = useAuthStore((state) => state.user)
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const logout = useAuthStore((state) => state.logout)
+  const fetchCart = useCartStore((state) => state.fetchCart)
+  const itemCount = useCartStore((state) => state.itemCount)
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchCart().catch(() => {})
+    }
+  }, [isAuthenticated, fetchCart])
 
   return (
     <header className="border-b border-slate-200 bg-white/90 backdrop-blur">
@@ -24,9 +34,14 @@ function Navbar() {
         <nav className="ml-auto flex items-center gap-2">
           <NavLink
             to="/cart"
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-[#0ea5e9] hover:text-[#0ea5e9]"
+            className="relative rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-[#0ea5e9] hover:text-[#0ea5e9]"
           >
             Sepet
+            {itemCount > 0 && (
+              <span className="absolute -right-2 -top-2 min-w-5 rounded-full bg-nexora-accent px-1.5 py-0.5 text-center text-[11px] font-semibold text-white">
+                {itemCount}
+              </span>
+            )}
           </NavLink>
 
           {!isAuthenticated ? (

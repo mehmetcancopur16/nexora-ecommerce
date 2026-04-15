@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react"
-import { useParams } from "react-router"
+import { useNavigate, useParams } from "react-router"
 import { toast } from "sonner"
+import { useAuthStore } from "../store/authStore"
+import { useCartStore } from "../store/cartStore"
 import { useProductStore } from "../store/productStore"
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api").replace(/\/api$/, "")
@@ -27,7 +29,10 @@ const renderStars = (rating) => {
 }
 
 function ProductDetail() {
+  const navigate = useNavigate()
   const { id } = useParams()
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const addItem = useCartStore((state) => state.addItem)
   const product = useProductStore((state) => state.product)
   const loading = useProductStore((state) => state.loading)
   const error = useProductStore((state) => state.error)
@@ -53,6 +58,21 @@ function ProductDetail() {
 
   const decreaseQuantity = () => {
     setQuantity((prev) => Math.max(1, prev - 1))
+  }
+
+  const handleAddToCart = async () => {
+    if (!isAuthenticated) {
+      toast.error("Sepete eklemek icin once giris yapin.")
+      navigate("/login")
+      return
+    }
+
+    try {
+      await addItem({ productId: product?._id, quantity })
+      toast.success(`${quantity} adet urun sepete eklendi.`)
+    } catch (error) {
+      toast.error(error.message)
+    }
   }
 
   if (loading) {
@@ -137,7 +157,7 @@ function ProductDetail() {
           <button
             type="button"
             disabled={stock <= 0}
-            onClick={() => toast.success(`${quantity} adet urun sepete eklendi (demo).`)}
+            onClick={handleAddToCart}
             className="w-full rounded-xl bg-nexora-accent px-5 py-4 text-base font-bold text-white transition hover:bg-rose-600 disabled:cursor-not-allowed disabled:bg-slate-300"
           >
             Sepete Ekle

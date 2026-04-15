@@ -2,8 +2,10 @@ import { useEffect } from "react"
 import { BrowserRouter, Route, Routes } from "react-router"
 import MainLayout from "./components/layout/MainLayout"
 import Cart from "./pages/Cart"
+import Checkout from "./pages/Checkout"
 import Home from "./pages/Home"
 import Login from "./pages/Login"
+import OrderSuccess from "./pages/OrderSuccess"
 import ProductDetail from "./pages/ProductDetail"
 import Products from "./pages/Products"
 import Register from "./pages/Register"
@@ -26,6 +28,8 @@ function App() {
           <Route path="products" element={<Products />} />
           <Route path="products/:id" element={<ProductDetail />} />
           <Route path="cart" element={<Cart />} />
+          <Route path="checkout" element={<Checkout />} />
+          <Route path="order-success/:id" element={<OrderSuccess />} />
         </Route>
       </Routes>
     </BrowserRouter>
