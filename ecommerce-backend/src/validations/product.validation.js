@@ -45,6 +45,14 @@ const listProductsQuerySchema = z.object({
     (val) => (typeof val === "string" ? val.trim() : val),
     z.string().optional()
   ),
+  includeInactive: z.preprocess((val) => {
+    if (val === undefined || val === "") return false;
+    if (typeof val === "boolean") return val;
+    if (typeof val === "string") {
+      return val.toLowerCase() === "true";
+    }
+    return false;
+  }, z.boolean().optional()),
 });
 
 module.exports = {

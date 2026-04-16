@@ -1,14 +1,43 @@
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
 const Product = require("../models/Product.model");
 const Category = require("../models/Category.model");
+const User = require("../models/User.model");
 const asyncHandler = require("../utils/asyncHandler");
 const ApiError = require("../utils/apiError");
 
-exports.getAllProducts = asyncHandler(async (req, res) => {
-  const { page, limit, category, search } = req.query;
-  const skip = (page - 1) * limit;
+const isAdminFromRequest = async (req) => {
+  const header = req.headers.authorization;
+  if (!header || !header.startsWith("Bearer ")) {
+    return false;
+  }
 
-  const filter = { isActive: true };
+  const token = header.slice("Bearer ".length).trim();
+  if (!token || !process.env.JWT_SECRET) {
+    return false;
+  }
+
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const id = payload.sub ?? payload.id ?? payload._id;
+    if (!id) return false;
+    const user = await User.findById(id).select("role isActive").lean();
+    return Boolean(user?.isActive && user?.role === "admin");
+  } catch {
+    return false;
+  }
+};
+
+exports.getAllProducts = asyncHandler(async (req, res) => {
+  const { page, limit, category, search, includeInactive } = req.query;
+  const skip = (page - 1) * limit;
+  const isAdmin = await isAdminFromRequest(req);
+  const canIncludeInactive = isAdmin && includeInactive === true;
+
+  const filter = {};
+  if (!canIncludeInactive) {
+    filter.isActive = true;
+  }
   if (category) {
     filter.category = new mongoose.Types.ObjectId(category);
   }

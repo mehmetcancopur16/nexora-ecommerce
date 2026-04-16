@@ -1,7 +1,13 @@
 import { useEffect } from "react"
 import { BrowserRouter, Navigate, Route, Routes } from "react-router"
+import AdminRoute from "./components/layout/AdminRoute"
 import MainLayout from "./components/layout/MainLayout"
 import ProtectedRoute from "./components/layout/ProtectedRoute"
+import AdminLayout from "./pages/admin/AdminLayout"
+import AdminOrders from "./pages/admin/AdminOrders"
+import AdminProducts from "./pages/admin/AdminProducts"
+import AdminUsers from "./pages/admin/AdminUsers"
+import Dashboard from "./pages/admin/Dashboard"
 import Cart from "./pages/Cart"
 import Checkout from "./pages/Checkout"
 import Home from "./pages/Home"
@@ -45,6 +51,15 @@ function App() {
           </Route>
 
           <Route path="profile/*" element={<Navigate to="/profile" replace />} />
+        </Route>
+
+        <Route element={<AdminRoute />}>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="products" element={<AdminProducts />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="users" element={<AdminUsers />} />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>
