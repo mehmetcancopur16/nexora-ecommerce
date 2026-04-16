@@ -1,20 +1,32 @@
-import { useEffect } from "react"
-import { Link, NavLink } from "react-router"
+import { useEffect, useState } from "react"
+import { Link, NavLink, useNavigate } from "react-router"
 import { useAuthStore } from "../../store/authStore"
 import { useCartStore } from "../../store/cartStore"
 
 function Navbar() {
+  const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const logout = useAuthStore((state) => state.logout)
   const fetchCart = useCartStore((state) => state.fetchCart)
   const itemCount = useCartStore((state) => state.itemCount)
+  const [searchText, setSearchText] = useState("")
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     if (isAuthenticated) {
       fetchCart().catch(() => {})
     }
   }, [isAuthenticated, fetchCart])
+
+  const handleSearchSubmit = (event) => {
+    event.preventDefault()
+    const query = searchText.trim()
+    navigate(query ? `/products?search=${encodeURIComponent(query)}` : "/products")
+    setIsMobileMenuOpen(false)
+  }
+
+  const closeMobileMenu = () => setIsMobileMenuOpen(false)
 
   return (
     <header className="border-b border-slate-200 bg-white/90 backdrop-blur">
@@ -23,15 +35,33 @@ function Navbar() {
           Nexora
         </Link>
 
-        <div className="order-3 w-full md:order-none md:flex-1">
-          <input
-            type="search"
-            placeholder="Ürün, kategori veya marka ara..."
-            className="w-full rounded-xl border border-slate-200 px-4 py-2 text-sm text-slate-700 outline-none transition focus:border-[#0ea5e9] focus:ring-2 focus:ring-[#0ea5e9]/20"
-          />
-        </div>
+        <form className="order-3 w-full md:order-none md:flex-1" onSubmit={handleSearchSubmit}>
+          <div className="flex items-center gap-2">
+            <input
+              type="search"
+              value={searchText}
+              onChange={(event) => setSearchText(event.target.value)}
+              placeholder="Urun, kategori veya marka ara..."
+              className="w-full rounded-xl border border-slate-200 px-4 py-2 text-sm text-slate-700 outline-none transition focus:border-[#0ea5e9] focus:ring-2 focus:ring-[#0ea5e9]/20"
+            />
+            <button
+              type="submit"
+              className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-[#0ea5e9] hover:text-[#0ea5e9]"
+            >
+              Ara
+            </button>
+          </div>
+        </form>
 
-        <nav className="ml-auto flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+          className="ml-auto rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 md:hidden"
+        >
+          {isMobileMenuOpen ? "Kapat" : "Menu"}
+        </button>
+
+        <nav className="ml-auto hidden items-center gap-2 md:flex">
           <NavLink
             to="/cart"
             className="relative rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-[#0ea5e9] hover:text-[#0ea5e9]"
@@ -69,7 +99,10 @@ function Navbar() {
               </NavLink>
               <button
                 type="button"
-                onClick={logout}
+                onClick={() => {
+                  logout()
+                  closeMobileMenu()
+                }}
                 className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
               >
                 Cikis
@@ -77,6 +110,58 @@ function Navbar() {
             </>
           )}
         </nav>
+
+        {isMobileMenuOpen && (
+          <div className="order-4 w-full rounded-xl border border-slate-200 bg-white p-3 shadow-sm md:hidden">
+            <div className="flex flex-col gap-2">
+              <NavLink
+                to="/cart"
+                onClick={closeMobileMenu}
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700"
+              >
+                Sepet {itemCount > 0 ? `(${itemCount})` : ""}
+              </NavLink>
+              {!isAuthenticated ? (
+                <>
+                  <NavLink
+                    to="/login"
+                    onClick={closeMobileMenu}
+                    className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700"
+                  >
+                    Giris
+                  </NavLink>
+                  <NavLink
+                    to="/register"
+                    onClick={closeMobileMenu}
+                    className="rounded-lg bg-[#0ea5e9] px-3 py-2 text-sm font-medium text-white"
+                  >
+                    Kayit
+                  </NavLink>
+                </>
+              ) : (
+                <>
+                  <NavLink
+                    to="/profile"
+                    onClick={closeMobileMenu}
+                    className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700"
+                  >
+                    {user?.name || "Profil"}
+                  </NavLink>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      logout()
+                      closeMobileMenu()
+                    }}
+                    className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white"
+                  >
+                    Cikis
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </header>
   )

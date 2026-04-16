@@ -12,6 +12,7 @@ import Cart from "./pages/Cart"
 import Checkout from "./pages/Checkout"
 import Home from "./pages/Home"
 import Login from "./pages/Login"
+import NotFound from "./pages/NotFound"
 import OrderSuccess from "./pages/OrderSuccess"
 import ProductDetail from "./pages/ProductDetail"
 import Products from "./pages/Products"
@@ -61,6 +62,8 @@ function App() {
             <Route path="users" element={<AdminUsers />} />
           </Route>
         </Route>
+
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   )

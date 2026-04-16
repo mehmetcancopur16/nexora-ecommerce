@@ -1,23 +1,45 @@
 import { useEffect } from "react"
+import { useSearchParams } from "react-router"
 import FilterSidebar from "../components/product/FilterSidebar"
 import ProductCard from "../components/product/ProductCard"
 import ProductSkeleton from "../components/product/ProductSkeleton"
 import { useProductStore } from "../store/productStore"
 
 function Products() {
+  const [searchParams, setSearchParams] = useSearchParams()
   const products = useProductStore((state) => state.products)
   const categories = useProductStore((state) => state.categories)
   const filters = useProductStore((state) => state.filters)
   const loading = useProductStore((state) => state.loading)
   const error = useProductStore((state) => state.error)
-  const fetchProducts = useProductStore((state) => state.fetchProducts)
   const fetchCategories = useProductStore((state) => state.fetchCategories)
   const setFilters = useProductStore((state) => state.setFilters)
 
   useEffect(() => {
+    const querySearch = searchParams.get("search") || ""
+    const queryCategory = searchParams.get("category") || ""
+    const queryPage = Number(searchParams.get("page") || 1)
+
     fetchCategories()
-    fetchProducts()
-  }, [fetchCategories, fetchProducts])
+    setFilters({
+      search: querySearch,
+      category: queryCategory,
+      page: Number.isNaN(queryPage) || queryPage < 1 ? 1 : queryPage,
+    })
+  }, [fetchCategories, searchParams, setFilters])
+
+  useEffect(() => {
+    const nextParams = new URLSearchParams()
+    if (filters.search) nextParams.set("search", filters.search)
+    if (filters.category) nextParams.set("category", filters.category)
+    if (filters.page > 1) nextParams.set("page", String(filters.page))
+
+    const current = searchParams.toString()
+    const next = nextParams.toString()
+    if (current !== next) {
+      setSearchParams(nextParams, { replace: true })
+    }
+  }, [filters.search, filters.category, filters.page, searchParams, setSearchParams])
 
   const skeletonCards = Array.from({ length: 6 }, (_, index) => <ProductSkeleton key={index} />)
 
