@@ -44,16 +44,61 @@ app.use(express.json());
 app.use("/api", globalLimiter);
 app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
+/**
+ * @openapi
+ * /api/health:
+ *   get:
+ *     tags: [System]
+ *     summary: API saglik kontrolu
+ *     responses:
+ *       200:
+ *         description: Servis ayakta
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                   example: true
+ *                 service:
+ *                   type: string
+ *                   example: nexora-ecommerce-api
+ */
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true, service: "nexora-ecommerce-api" });
 });
 
+/**
+ * @openapi
+ * /health:
+ *   get:
+ *     tags: [System]
+ *     summary: Kisa saglik kontrolu
+ *     responses:
+ *       200:
+ *         description: Servis ayakta
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                   example: true
+ *                 service:
+ *                   type: string
+ *                   example: nexora-ecommerce-api
+ */
 app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "nexora-ecommerce-api" });
 });
 
 const swaggerSpec = buildSwaggerSpec();
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, { explorer: true }));
+app.get("/api-docs.json", (_req, res) => {
+  res.json(swaggerSpec);
+});
 
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
@@ -70,6 +115,8 @@ async function bootstrap() {
   await connectDB();
   app.listen(PORT, () => {
     logger.info(`Sunucu ${PORT} portunda dinleniyor`);
+    logger.info(`Swagger UI: http://localhost:${PORT}/api-docs`);
+    logger.info(`OpenAPI JSON: http://localhost:${PORT}/api-docs.json`);
   });
 }
 

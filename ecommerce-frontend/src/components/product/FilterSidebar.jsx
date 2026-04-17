@@ -1,21 +1,24 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 function FilterSidebar({ categories, filters, onChangeFilters }) {
   const [searchValue, setSearchValue] = useState(filters.search)
+  const debounceTimerRef = useRef(null)
 
-  useEffect(() => {
-    setSearchValue(filters.search)
-  }, [filters.search])
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (searchValue !== filters.search) {
-        onChangeFilters({ search: searchValue })
-      }
+  const handleSearchChange = (event) => {
+    const nextValue = event.target.value
+    setSearchValue(nextValue)
+    clearTimeout(debounceTimerRef.current)
+    debounceTimerRef.current = setTimeout(() => {
+      onChangeFilters({ search: nextValue })
     }, 400)
+  }
 
-    return () => clearTimeout(timer)
-  }, [searchValue, filters.search, onChangeFilters])
+  useEffect(
+    () => () => {
+      clearTimeout(debounceTimerRef.current)
+    },
+    []
+  )
 
   return (
     <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -30,7 +33,7 @@ function FilterSidebar({ categories, filters, onChangeFilters }) {
             id="product-search"
             type="search"
             value={searchValue}
-            onChange={(event) => setSearchValue(event.target.value)}
+            onChange={handleSearchChange}
             placeholder="Urun ara..."
             className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-nexora-primary focus:ring-2 focus:ring-sky-100"
           />
@@ -74,6 +77,7 @@ function FilterSidebar({ categories, filters, onChangeFilters }) {
           type="button"
           onClick={() => {
             setSearchValue("")
+            clearTimeout(debounceTimerRef.current)
             onChangeFilters({ search: "", category: "", page: 1 })
           }}
           className="w-full rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-nexora-primary hover:text-nexora-primary"

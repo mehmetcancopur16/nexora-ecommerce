@@ -28,7 +28,6 @@ const orderSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      index: true,
     },
     items: { type: [orderItemSchema], required: true },
     totalAmount: { type: Number, required: true, min: 0 },
@@ -37,14 +36,10 @@ const orderSchema = new mongoose.Schema(
       enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
       default: "pending",
       required: true,
-      index: true,
     },
     shippingAddress: { type: shippingAddressSchema, required: true },
   },
   { timestamps: true }
 );
-
-orderSchema.index({ user: 1 });
-orderSchema.index({ status: 1 });
 
 module.exports = mongoose.model("Order", orderSchema);

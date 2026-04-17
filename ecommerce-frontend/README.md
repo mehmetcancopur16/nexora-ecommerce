@@ -1,16 +1,64 @@
-# React + Vite
+# Nexora Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Bu paket, Nexora e-ticaret uygulamasinin kullanici ve admin arayuzunu icerir.
 
-Currently, two official plugins are available:
+## Teknolojiler
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React
+- Vite
+- Zustand tabanli store yapisi
+- Axios ile API haberlesmesi
 
-## React Compiler
+## Kurulum
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+```
 
-## Expanding the ESLint configuration
+## Ortam Degiskenleri
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+`.env.example` dosyasini `.env` olarak kopyalayin:
+
+```bash
+cp .env.example .env
+```
+
+Kullanilan degiskenler:
+
+- `VITE_API_BASE_URL` (varsayilan fallback: `http://localhost:5000/api`)
+- `VITE_AUTH_LOGIN_PATH` (opsiyonel, varsayilan `/auth/login`)
+- `VITE_AUTH_REGISTER_PATH` (opsiyonel, varsayilan `/auth/register`)
+
+## Komutlar
+
+- Gelistirme modu:
+
+```bash
+npm run dev
+```
+
+- Production build:
+
+```bash
+npm run build
+```
+
+- Preview:
+
+```bash
+npm run preview
+```
+
+- Lint:
+
+```bash
+npm run lint
+```
+
+## Calisma URL'i
+
+Varsayilan Vite adresi:
+
+- `http://localhost:5173`
+
+Backend ayakta degilse urun listesi, auth ve sepet akislari API hatasi verir. Kok dizinden `npm run dev` kullanarak frontend ve backend'i birlikte baslatmaniz onerilir.

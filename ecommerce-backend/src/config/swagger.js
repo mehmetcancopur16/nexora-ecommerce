@@ -11,6 +11,9 @@ function buildSwaggerSpec() {
         description:
           "Kategori ve ürün uçları. Liste ve detay herkese açıktır; oluşturma, güncelleme ve silme (soft delete) için `admin` rolü ve Bearer JWT gereklidir.",
       },
+      servers: [
+        { url: "http://localhost:5000", description: "Local development" },
+      ],
       components: {
         securitySchemes: {
           bearerAuth: {
@@ -81,6 +84,8 @@ function buildSwaggerSpec() {
               stock: { type: "integer", example: 12 },
               category: { $ref: "#/components/schemas/Category" },
               images: { type: "array", items: { type: "string" } },
+              averageRating: { type: "number", example: 4.3, minimum: 0, maximum: 5 },
+              numOfReviews: { type: "integer", example: 18, minimum: 0 },
               isActive: { type: "boolean", example: true },
               createdAt: { type: "string", format: "date-time" },
               updatedAt: { type: "string", format: "date-time" },
@@ -258,10 +263,17 @@ function buildSwaggerSpec() {
               message: { type: "string" },
             },
           },
+          SuccessMessage: {
+            type: "object",
+            properties: {
+              success: { type: "boolean", example: true },
+              message: { type: "string", example: "Islem basariyla tamamlandi" },
+            },
+          },
         },
       },
     },
-    apis: [path.join(__dirname, "../routes/*.js")],
+    apis: [path.join(__dirname, "../routes/*.js"), path.join(__dirname, "../app.js")],
   });
 }
 

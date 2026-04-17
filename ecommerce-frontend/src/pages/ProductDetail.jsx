@@ -33,7 +33,6 @@ function ProductDetail() {
   const navigate = useNavigate()
   const { id } = useParams()
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
-  const user = useAuthStore((state) => state.user)
   const addItem = useCartStore((state) => state.addItem)
   const product = useProductStore((state) => state.product)
   const loading = useProductStore((state) => state.loading)

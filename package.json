@@ -6,7 +6,8 @@
   "scripts": {
     "server": "cd ecommerce-backend && npm run dev",
     "client": "cd ecommerce-frontend && npm run dev",
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "seed": "cd ecommerce-backend && npm run seed",
+    "dev": "concurrently -k --names BACKEND,FRONTEND --prefix-colors blue,magenta \"npm run server\" \"npm run client\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

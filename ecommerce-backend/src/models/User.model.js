@@ -28,8 +28,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.index({ email: 1 }, { unique: true });
-
 userSchema.pre("save", async function preSave(next) {
   if (!this.isModified("password")) {
     return next();

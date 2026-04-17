@@ -5,8 +5,52 @@
   --color-nexora-accent: #f43f5e;
   --color-nexora-bg: #f8fafc;
   --color-nexora-text: #0f172a;
+  --color-nexora-bg-soft: #f1f5f9;
+  --color-nexora-surface: #ffffff;
+  --color-nexora-muted: #64748b;
+  --color-nexora-line: #e2e8f0;
+  --color-nexora-dark: #020617;
+  --color-nexora-gold: #d4a017;
+  --color-nexora-primary-soft: #d9f2ff;
+  --color-nexora-accent-soft: #ffe4ec;
+  --color-nexora-success: #059669;
+  --color-nexora-warning: #f59e0b;
 }
 
 body {
   margin: 0;
+  background:
+    radial-gradient(circle at top right, rgba(14, 165, 233, 0.15), transparent 32%),
+    radial-gradient(circle at 8% 38%, rgba(244, 63, 94, 0.1), transparent 30%),
+    linear-gradient(180deg, #f8fafc 0%, #ffffff 42%, #f8fafc 100%);
+  color: var(--color-nexora-text);
+  font-family:
+    "Inter",
+    "SF Pro Text",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.nexora-gradient-text {
+  background: linear-gradient(110deg, #0f172a 0%, #0ea5e9 42%, #f43f5e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.nexora-glass {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.68));
+  backdrop-filter: blur(8px);
 }
