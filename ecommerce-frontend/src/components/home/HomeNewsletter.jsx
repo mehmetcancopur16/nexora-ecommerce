@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Mail, Send } from "lucide-react"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
+import { useNewsletterSubscribe } from "../../hooks/useNewsletterSubscribe"
 import Button from "../common/Button"
 import Container from "../common/Container"
 import SurfaceCard from "../common/SurfaceCard"
@@ -9,15 +10,17 @@ const MotionDiv = motion.div
 
 function HomeNewsletter() {
   const [email, setEmail] = useState("")
+  const { subscribe, loading } = useNewsletterSubscribe("home")
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
-    if (!email.trim()) {
-      toast.error("Lutfen gecerli bir e-posta adresi girin.")
-      return
+    const result = await subscribe(email, "home")
+    if (result.ok) {
+      toast.success(result.message)
+      setEmail("")
+    } else {
+      toast.error(result.message)
     }
-    toast.success("Bulten uyeligi alindi. Hos geldiniz!")
-    setEmail("")
   }
 
   return (
@@ -52,9 +55,9 @@ function HomeNewsletter() {
                 placeholder="E-posta adresin"
                 className="min-w-64 rounded-xl border border-slate-500 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-slate-300 focus:border-white focus:outline-none"
               />
-              <Button type="submit" className="gap-2 bg-white text-slate-900 hover:bg-slate-100">
-                Abone Ol
-                <Send size={15} />
+              <Button type="submit" disabled={loading} className="gap-2 bg-white text-slate-900 hover:bg-slate-100 disabled:opacity-60">
+                {loading ? "Gonderiliyor..." : "Abone Ol"}
+                {!loading ? <Send size={15} /> : null}
               </Button>
             </form>
           </div>

@@ -20,6 +20,7 @@ const orderRoutes = require("./routes/order.routes");
 const userRoutes = require("./routes/user.routes");
 const reviewRoutes = require("./routes/review.routes");
 const adminRoutes = require("./routes/admin.routes");
+const newsletterRoutes = require("./routes/newsletter.routes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -107,6 +108,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/newsletter", newsletterRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
