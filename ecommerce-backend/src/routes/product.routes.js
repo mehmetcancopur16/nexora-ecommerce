@@ -50,6 +50,14 @@ const router = express.Router();
  *         schema:
  *           type: string
  *         description: Ürün adında full-text arama metni
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           enum: [newest, price_asc, price_desc, name_asc, name_desc, relevance]
+ *         description: |
+ *           Sıralama. Arama varken parametre verilmezse varsayılan `relevance` (metin skoru);
+ *           arama yokken varsayılan `newest` (en yeni).
  *     responses:
  *       200:
  *         description: Başarılı

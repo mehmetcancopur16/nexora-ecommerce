@@ -46,7 +46,7 @@ function ProductCard({ product }) {
   }
 
   return (
-    <article className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+    <article className="group relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm ring-0 transition hover:-translate-y-1 hover:border-sky-200/80 hover:shadow-xl hover:ring-2 hover:ring-sky-100/80">
       <Link className="block" to={`/products/${product?._id}`}>
         <div className="aspect-square overflow-hidden bg-slate-100">
           <img

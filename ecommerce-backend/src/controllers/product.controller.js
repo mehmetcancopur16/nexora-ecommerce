@@ -28,8 +28,26 @@ const isAdminFromRequest = async (req) => {
   }
 };
 
+function resolveProductListSort(sortParam, hasTextSearch) {
+  switch (sortParam) {
+    case "price_asc":
+      return { price: 1 };
+    case "price_desc":
+      return { price: -1 };
+    case "name_asc":
+      return { name: 1 };
+    case "name_desc":
+      return { name: -1 };
+    case "relevance":
+      return hasTextSearch ? { score: { $meta: "textScore" } } : { createdAt: -1 };
+    case "newest":
+    default:
+      return { createdAt: -1 };
+  }
+}
+
 exports.getAllProducts = asyncHandler(async (req, res) => {
-  const { page, limit, category, search, includeInactive } = req.query;
+  const { page, limit, category, search, includeInactive, sort } = req.query;
   const skip = (page - 1) * limit;
   const isAdmin = await isAdminFromRequest(req);
   const canIncludeInactive = isAdmin && includeInactive === true;
@@ -41,17 +59,20 @@ exports.getAllProducts = asyncHandler(async (req, res) => {
   if (category) {
     filter.category = new mongoose.Types.ObjectId(category);
   }
-  if (search && search.length > 0) {
+  const hasTextSearch = Boolean(search && search.length > 0);
+  if (hasTextSearch) {
     filter.$text = { $search: search };
   }
 
+  const effectiveSort = sort ?? (hasTextSearch ? "relevance" : "newest");
+  const sortKey = resolveProductListSort(effectiveSort, hasTextSearch);
+  const useTextScoreSort = hasTextSearch && effectiveSort === "relevance";
+
   let query = Product.find(filter);
-  if (search && search.length > 0) {
+  if (useTextScoreSort) {
     query = query.select({ score: { $meta: "textScore" } });
-    query = query.sort({ score: { $meta: "textScore" } });
-  } else {
-    query = query.sort({ createdAt: -1 });
   }
+  query = query.sort(sortKey);
 
   const [items, total] = await Promise.all([
     query

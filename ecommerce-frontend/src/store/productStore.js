@@ -5,8 +5,10 @@ const DEFAULT_FILTERS = {
   search: "",
   category: "",
   page: 1,
-  limit: 9,
+  limit: 12,
   totalPages: 1,
+  total: 0,
+  sort: "newest",
 }
 
 const normalizeError = (error, fallbackMessage) =>
@@ -34,7 +36,7 @@ export const useProductStore = create((set, get) => ({
     }),
 
   fetchProducts: async () => {
-    const { search, category, page, limit } = get().filters
+    const { search, category, page, limit, sort } = get().filters
     get().beginLoading()
     set({ error: null })
 
@@ -42,6 +44,7 @@ export const useProductStore = create((set, get) => ({
       const params = {
         page,
         limit,
+        sort,
       }
 
       if (search?.trim()) {
@@ -55,12 +58,14 @@ export const useProductStore = create((set, get) => ({
       const response = await axiosInstance.get("/products", { params })
       const products = response?.data?.data || []
       const totalPages = response?.data?.pagination?.totalPages || 1
+      const total = response?.data?.pagination?.total ?? 0
 
       set((state) => ({
         products,
         filters: {
           ...state.filters,
           totalPages,
+          total,
         },
       }))
     } catch (error) {
@@ -114,12 +119,29 @@ export const useProductStore = create((set, get) => ({
     const searchChanged = incomingSearch !== currentFilters.search
     const categoryChanged = incomingCategory !== currentFilters.category
 
-    const mergedFilters = {
+    let mergedFilters = {
       ...currentFilters,
       ...nextFilters,
     }
 
-    if ((searchChanged || categoryChanged) && !Object.prototype.hasOwnProperty.call(nextFilters, "page")) {
+    if (searchChanged) {
+      const nextSearch = String(incomingSearch ?? "").trim()
+      const prevSearch = String(currentFilters.search ?? "").trim()
+      if (!prevSearch && nextSearch && mergedFilters.sort === "newest") {
+        mergedFilters = { ...mergedFilters, sort: "relevance" }
+      }
+      if (prevSearch && !nextSearch && mergedFilters.sort === "relevance") {
+        mergedFilters = { ...mergedFilters, sort: "newest" }
+      }
+    }
+
+    const effectiveSortChanged =
+      mergedFilters.sort !== currentFilters.sort
+
+    if (
+      (searchChanged || categoryChanged || effectiveSortChanged) &&
+      !Object.prototype.hasOwnProperty.call(nextFilters, "page")
+    ) {
       mergedFilters.page = 1
     }
 

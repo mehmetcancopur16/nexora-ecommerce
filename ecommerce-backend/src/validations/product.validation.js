@@ -29,6 +29,8 @@ const updateProductSchema = z
     message: "Güncelleme için en az bir alan gerekli",
   });
 
+const sortEnum = z.enum(["newest", "price_asc", "price_desc", "name_asc", "name_desc", "relevance"]);
+
 const listProductsQuerySchema = z.object({
   page: z.preprocess((val) => {
     if (val === undefined || val === "") return 1;
@@ -45,6 +47,13 @@ const listProductsQuerySchema = z.object({
     (val) => (typeof val === "string" ? val.trim() : val),
     z.string().optional()
   ),
+  sort: z.preprocess((val) => {
+    if (val === undefined || val === "") return undefined;
+    if (typeof val !== "string") return undefined;
+    const v = val.toLowerCase();
+    const allowed = ["newest", "price_asc", "price_desc", "name_asc", "name_desc", "relevance"];
+    return allowed.includes(v) ? v : undefined;
+  }, sortEnum.optional()),
   includeInactive: z.preprocess((val) => {
     if (val === undefined || val === "") return false;
     if (typeof val === "boolean") return val;
