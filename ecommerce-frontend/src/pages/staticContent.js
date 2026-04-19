@@ -1,100 +1,129 @@
+import { FREE_SHIPPING_THRESHOLD_TL } from "../constants/shipping"
+
 export const STATIC_PAGES = {
   returns: {
-    title: "Iade Politikasi",
-    description: "Nexora iade ve degisim kosullari.",
+    pageKey: "returns",
+    title: "İade politikası",
+    description: "Nexora’da iade ve değişim koşulları; tüketici haklarınız ve süreç adımları.",
     sections: [
       {
-        heading: "Genel Kosullar",
+        slug: "genel-kosullar",
+        icon: "clipboard",
+        heading: "Genel koşullar",
         paragraphs: [
-          "Satin aldiginiz urunleri, teslimattan itibaren 14 gun icinde herhangi bir gerekce gostermeksizin iade edebilirsiniz. Urun kullanilmamis, orijinal ambalajinda ve fatura/irsaliye ile birlikte olmalidir.",
-          "Kisisel hijyen urunleri, acilmis yazilim lisanslari ve kampanya kosullarinda ozel olarak belirtilen urunler iade kapsami disinda olabilir; urun sayfasindaki aciklamalar gecerlidir.",
+          "Satın aldığınız ürünleri, teslimattan itibaren 14 gün içinde herhangi bir gerekçe göstermeksizin iade edebilirsiniz. Ürün kullanılmamış, orijinal ambalajında ve fatura veya irsaliye ile birlikte olmalıdır.",
+          "Kişisel hijyen ürünleri, açılmış yazılım lisansları ve kampanya koşullarında özel olarak belirtilen ürünler iade kapsamı dışında olabilir; ürün sayfasındaki açıklamalar geçerlidir.",
         ],
       },
       {
-        heading: "Iade Sureci",
+        slug: "iade-sureci",
+        icon: "package",
+        heading: "İade süreci",
         paragraphs: [
-          "Hesabinizdan siparis detayina giderek iade talebi olusturun veya destek ekibimizle iletisime gecin. Onay sonrasi kargo etiketi veya iade adresi tarafiniza iletilir.",
-          "Iade kargonuz depomuza ulastiginda ve kontrol tamamlandiginda odeme, odeme yaptiginiz yonteme 5-10 is gunu icinde iade edilir.",
+          "Hesabınızdan sipariş detayına giderek iade talebi oluşturun veya destek ekibimizle iletişime geçin. Onay sonrası kargo etiketi veya iade adresi tarafınıza iletilir.",
+          "İade kargonuz depomuza ulaştığında ve kontrol tamamlandığında ödeme, ödeme yaptığınız yönteme 5–10 iş günü içinde iade edilir.",
         ],
       },
       {
-        heading: "Iletisim",
+        slug: "iletisim",
+        icon: "mail",
+        heading: "İletişim",
         paragraphs: [
-          "Iade ile ilgili sorulariniz icin destek@nexora.com veya +90 212 000 00 00 numarali hattimizi kullanabilirsiniz.",
+          "İade ile ilgili sorularınız için destek@nexora.com veya +90 212 000 00 00 numaralı hattımızı kullanabilirsiniz.",
         ],
       },
     ],
-    updatedLabel: "Son guncelleme: 2026",
+    updatedLabel: "Son güncelleme: Nisan 2026",
   },
   shipping: {
-    title: "Teslimat Bilgisi",
-    description: "Kargo sureleri, bolgeler ve teslimat secenekleri.",
+    pageKey: "shipping",
+    title: "Teslimat bilgisi",
+    description: "Kargo süreleri ve takip; ücretsiz kargo eşiği sepet özetindeki bilgilendirme ile uyumludur.",
     sections: [
       {
-        heading: "Teslimat Suresi",
+        slug: "teslimat-suresi",
+        icon: "truck",
+        heading: "Teslimat süresi",
         paragraphs: [
-          "Istanbul icin ayni gun veya ertesi gun teslimat; diger sehirler icin 1-3 is gunu hedeflenmektedir. Kampanya ve yogunluk donemlerinde sureler uzayabilir.",
+          "İstanbul için aynı gün veya ertesi iş günü teslimat; diğer şehirler için genelde 1–3 iş günü hedeflenir. Kampanya ve yoğunluk dönemlerinde süreler uzayabilir.",
         ],
       },
       {
-        heading: "Kargo Ucreti",
+        slug: "kargo-ucreti",
+        icon: "badgePercent",
+        heading: "Kargo ücreti",
         paragraphs: [
-          "Belirtilen sepet tutari uzeri siparislerde ucretsiz kargo uygulanabilir; altinda sabit kargo ucreti sepet ozetinde gosterilir.",
+          `${FREE_SHIPPING_THRESHOLD_TL} TL ve üzeri siparişlerde kampanyalı ücretsiz kargo uygulanır; altında sabit kargo ücreti ödeme ve sepet özeti ekranında gösterilir.`,
+          "Ücretler bölge ve kargo firmasına göre değişebilir; nihai tutar sipariş onayı öncesinde netleşir.",
         ],
       },
       {
+        slug: "takip",
+        icon: "mapPin",
         heading: "Takip",
         paragraphs: [
-          "Siparisiniz kargoya verildiginde e-posta ve SMS ile takip numarasi paylasilir. Kargo firmasinin web sitesinden guncel durumu izleyebilirsiniz.",
+          "Siparişiniz kargoya verildiğinde e-posta ve SMS ile takip numarası paylaşılır. Kargo firmasının web sitesinden güncel durumu izleyebilirsiniz.",
         ],
       },
     ],
-    updatedLabel: "Son guncelleme: 2026",
+    updatedLabel: "Son güncelleme: Nisan 2026",
   },
   privacy: {
-    title: "Gizlilik Politikasi",
-    description: "Kisisel verilerin korunmasi ve kullanimi.",
+    pageKey: "privacy",
+    title: "Gizlilik politikası",
+    description: "Kişisel verilerin korunması, işlenme amaçları ve KVKK kapsamındaki haklarınız.",
     sections: [
       {
-        heading: "Toplanan Veriler",
+        slug: "toplanan-veriler",
+        icon: "database",
+        heading: "Toplanan veriler",
         paragraphs: [
-          "Hesap olusturma, siparis ve musteri hizmetleri surecinde ad, iletisim, teslimat adresi ve odeme islemi icin gerekli bilgiler islenir. Odeme karti bilgileri PCI uyumlu odeme saglayicisi uzerinden guvenle alinir; Nexora kart numaranizi saklamaz.",
+          "Hesap oluşturma, sipariş ve müşteri hizmetleri sürecinde ad, iletişim, teslimat adresi ve ödeme işlemi için gerekli bilgiler işlenir. Ödeme kartı bilgileri PCI uyumlu ödeme sağlayıcısı üzerinden güvenle alınır; Nexora kart numaranızı saklamaz.",
         ],
       },
       {
-        heading: "Kullanim Amaçlari",
+        slug: "kullanim-amaclari",
+        icon: "shield",
+        heading: "Kullanım amaçları",
         paragraphs: [
-          "Verileriniz siparisin yerine getirilmesi, yasal yukumlulukler, dolandiricilik onleme ve (tercihinize bagli) pazarlama iletisimi icin kullanilir.",
+          "Verileriniz siparişin yerine getirilmesi, yasal yükümlülükler, dolandırıcılık önleme ve (tercihinize bağlı) pazarlama iletişimi için kullanılır.",
         ],
       },
       {
-        heading: "Haklariniz",
+        slug: "haklariniz",
+        icon: "scale",
+        heading: "Haklarınız",
         paragraphs: [
-          "KVKK kapsaminda verilerinize erisme, duzeltme, silme ve itiraz haklarinizi kullanmak icin hello@nexora.com adresine yazabilirsiniz.",
+          "KVKK kapsamında verilerinize erişme, düzeltme, silme ve itiraz haklarınızı kullanmak için hello@nexora.com adresine yazabilirsiniz.",
         ],
       },
     ],
-    updatedLabel: "Son guncelleme: 2026",
+    updatedLabel: "Son güncelleme: Nisan 2026",
   },
   support: {
+    pageKey: "support",
     title: "Destek",
-    description: "Sik sorulan sorular ve iletisim kanallari.",
+    description: "Sık sorulan sorular ve iletişim kanalları.",
     sections: [
       {
-        heading: "Sik Sorulan Sorular",
+        slug: "sss",
+        icon: "help",
+        heading: "Sık sorulan sorular",
         paragraphs: [
-          "Siparis durumunu Hesabim > Siparislerim bolumunden takip edebilirsiniz. Odeme hatasi yasarsaniz banka veya kart saglayicinizla da iletisime gecebilirsiniz.",
+          "Sipariş durumunu Hesabım > Siparişlerim bölümünden takip edebilirsiniz. Ödeme hatası yaşarsanız banka veya kart sağlayıcınızla da iletişime geçebilirsiniz.",
         ],
       },
       {
-        heading: "Bize Ulasin",
+        slug: "ulasim",
+        icon: "mail",
+        heading: "Bize ulaşın",
         paragraphs: [
           "E-posta: hello@nexora.com",
-          "Telefon: +90 212 000 00 00 (Hafta ici 09:00-18:00)",
-          "Adres: Istanbul, Turkiye",
+          "Telefon: +90 212 000 00 00 (Hafta içi 09:00–18:00)",
+          "Adres: İstanbul, Türkiye",
         ],
       },
     ],
-    updatedLabel: "Son guncelleme: 2026",
+    updatedLabel: "Son güncelleme: Nisan 2026",
   },
 }
