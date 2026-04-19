@@ -18,6 +18,7 @@ import ProductDetail from "./pages/ProductDetail"
 import Products from "./pages/Products"
 import Register from "./pages/Register"
 import StaticPage from "./pages/StaticPage"
+import Support from "./pages/Support"
 import AccountSettings from "./pages/profile/AccountSettings"
 import OrderHistory from "./pages/profile/OrderHistory"
 import ProfileLayout from "./pages/profile/ProfileLayout"
@@ -46,7 +47,7 @@ function App() {
           <Route path="iade-politikasi" element={<StaticPage pageKey="returns" />} />
           <Route path="teslimat" element={<StaticPage pageKey="shipping" />} />
           <Route path="gizlilik" element={<StaticPage pageKey="privacy" />} />
-          <Route path="destek" element={<StaticPage pageKey="support" />} />
+          <Route path="destek" element={<Support />} />
 
           <Route element={<ProtectedRoute />}>
             <Route path="profile" element={<ProfileLayout />}>

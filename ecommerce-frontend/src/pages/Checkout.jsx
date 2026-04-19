@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import axiosInstance from "../api/axiosInstance"
 import { useAuthStore } from "../store/authStore"
 import { useCartStore } from "../store/cartStore"
+import { selectCartSubtotal } from "../store/cartSelectors"
 import { checkoutSchema } from "../validations/checkout.validation"
 
 function Checkout() {
@@ -15,7 +16,7 @@ function Checkout() {
   const cart = useCartStore((state) => state.cart)
   const fetchCart = useCartStore((state) => state.fetchCart)
   const clearCart = useCartStore((state) => state.clearCart)
-  const totalAmount = useCartStore((state) => state.totalAmount)
+  const totalAmount = useCartStore(selectCartSubtotal)
 
   const {
     register,

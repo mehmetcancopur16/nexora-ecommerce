@@ -17,6 +17,7 @@ import { motion } from "framer-motion"
 import { Link, NavLink, useNavigate } from "react-router"
 import { useAuthStore } from "../../store/authStore"
 import { useCartStore } from "../../store/cartStore"
+import { selectCartItemCount } from "../../store/cartSelectors"
 
 const MotionDiv = motion.div
 
@@ -36,7 +37,7 @@ function Navbar() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const logout = useAuthStore((state) => state.logout)
   const fetchCart = useCartStore((state) => state.fetchCart)
-  const itemCount = useCartStore((state) => state.itemCount)
+  const itemCount = useCartStore(selectCartItemCount)
   const [searchText, setSearchText] = useState("")
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 

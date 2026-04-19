@@ -4,20 +4,10 @@ import axiosInstance from "../api/axiosInstance"
 const normalizeError = (error, fallbackMessage) =>
   error?.response?.data?.message || error?.message || fallbackMessage
 
-export const useCartStore = create((set, get) => ({
+export const useCartStore = create((set) => ({
   cart: null,
   isLoading: false,
   error: null,
-
-  get totalAmount() {
-    const items = get().cart?.items || []
-    return items.reduce((sum, item) => sum + Number(item?.product?.price || 0) * Number(item?.quantity || 0), 0)
-  },
-
-  get itemCount() {
-    const items = get().cart?.items || []
-    return items.reduce((sum, item) => sum + Number(item?.quantity || 0), 0)
-  },
 
   fetchCart: async () => {
     set({ isLoading: true, error: null })
