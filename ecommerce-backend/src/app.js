@@ -22,6 +22,7 @@ const reviewRoutes = require("./routes/review.routes");
 const adminRoutes = require("./routes/admin.routes");
 const newsletterRoutes = require("./routes/newsletter.routes");
 const contactRoutes = require("./routes/contact.routes");
+const authRoutes = require("./routes/auth.routes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -102,6 +103,7 @@ app.get("/api-docs.json", (_req, res) => {
   res.json(swaggerSpec);
 });
 
+app.use("/api/auth", authRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);

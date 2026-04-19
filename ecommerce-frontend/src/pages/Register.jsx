@@ -1,7 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { Eye, EyeOff } from "lucide-react"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { Link, useNavigate } from "react-router"
 import { toast } from "sonner"
+import AuthPageLayout from "../components/auth/AuthPageLayout"
 import { registerSchema } from "../validations/auth.validation"
 import { useAuthStore } from "../store/authStore"
 
@@ -9,6 +12,7 @@ function Register() {
   const navigate = useNavigate()
   const registerUser = useAuthStore((state) => state.register)
   const isLoading = useAuthStore((state) => state.isLoading)
+  const [showPassword, setShowPassword] = useState(false)
 
   const {
     register,
@@ -27,101 +31,128 @@ function Register() {
   const onSubmit = async (values) => {
     try {
       await registerUser(values)
-      toast.success("Kayit basarili! Lutfen giris yapin.")
-      navigate("/login")
+      toast.success("Hoş geldiniz! Hesabınız oluşturuldu.")
+      navigate("/")
     } catch (error) {
-      toast.error(error.message || "Kayit sirasinda bir hata olustu.")
+      toast.error(error.message || "Kayıt sırasında bir hata oluştu.")
     }
   }
 
+  const nameId = "register-name"
+  const emailId = "register-email"
+  const passwordId = "register-password"
+
   return (
-    <div className="flex min-h-[70vh] items-center justify-center">
-      <div className="w-full max-w-md rounded-2xl border border-sky-100 bg-white p-8 shadow-lg shadow-sky-100/60">
-        <div className="mb-6 space-y-2 text-center">
-          <h1 className="text-3xl font-semibold text-nexora-text">Kayit Ol</h1>
-          <p className="text-sm text-slate-500">Nexora dunyasina katil ve alisverise basla.</p>
+    <AuthPageLayout
+      title="Kayıt ol"
+      subtitle="Birkaç bilgiyle üye olun; sipariş ve favorileriniz hesabınıza bağlansın."
+      breadcrumbLabel="Kayıt"
+    >
+      <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-slate-700" htmlFor={nameId}>
+            Ad soyad
+          </label>
+          <input
+            id={nameId}
+            type="text"
+            autoComplete="name"
+            aria-invalid={errors.name ? "true" : "false"}
+            aria-describedby={errors.name ? `${nameId}-error` : undefined}
+            placeholder="Adınız ve soyadınız"
+            className={`w-full rounded-xl border bg-white/95 px-4 py-2.5 text-sm outline-none transition ${
+              errors.name
+                ? "border-rose-400 ring-2 ring-rose-100"
+                : "border-slate-200 focus:border-nexora-primary focus:ring-2 focus:ring-sky-100"
+            }`}
+            {...register("name")}
+          />
+          {errors.name ? (
+            <p id={`${nameId}-error`} className="mt-1.5 text-xs text-rose-600" role="alert">
+              {errors.name.message}
+            </p>
+          ) : null}
         </div>
 
-        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="name">
-              Ad Soyad
-            </label>
-            <input
-              id="name"
-              type="text"
-              autoComplete="name"
-              placeholder="Adiniz ve soyadiniz"
-              className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition ${
-                errors.name
-                  ? "border-rose-400 ring-2 ring-rose-100"
-                  : "border-slate-200 focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
-              }`}
-              {...register("name")}
-            />
-            {errors.name && <p className="mt-1 text-xs text-rose-600">{errors.name.message}</p>}
-          </div>
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-slate-700" htmlFor={emailId}>
+            E-posta
+          </label>
+          <input
+            id={emailId}
+            type="email"
+            autoComplete="email"
+            aria-invalid={errors.email ? "true" : "false"}
+            aria-describedby={errors.email ? `${emailId}-error` : undefined}
+            placeholder="ornek@mail.com"
+            className={`w-full rounded-xl border bg-white/95 px-4 py-2.5 text-sm outline-none transition ${
+              errors.email
+                ? "border-rose-400 ring-2 ring-rose-100"
+                : "border-slate-200 focus:border-nexora-primary focus:ring-2 focus:ring-sky-100"
+            }`}
+            {...register("email")}
+          />
+          {errors.email ? (
+            <p id={`${emailId}-error`} className="mt-1.5 text-xs text-rose-600" role="alert">
+              {errors.email.message}
+            </p>
+          ) : null}
+        </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="email">
-              E-posta
-            </label>
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-slate-700" htmlFor={passwordId}>
+            Şifre
+          </label>
+          <div className="relative">
             <input
-              id="email"
-              type="email"
-              autoComplete="email"
-              placeholder="ornek@mail.com"
-              className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition ${
-                errors.email
-                  ? "border-rose-400 ring-2 ring-rose-100"
-                  : "border-slate-200 focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
-              }`}
-              {...register("email")}
-            />
-            {errors.email && <p className="mt-1 text-xs text-rose-600">{errors.email.message}</p>}
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="password">
-              Sifre
-            </label>
-            <input
-              id="password"
-              type="password"
+              id={passwordId}
+              type={showPassword ? "text" : "password"}
               autoComplete="new-password"
+              aria-invalid={errors.password ? "true" : "false"}
+              aria-describedby={errors.password ? `${passwordId}-error` : undefined}
               placeholder="En az 8 karakter"
-              className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition ${
+              className={`w-full rounded-xl border bg-white/95 py-2.5 pl-4 pr-12 text-sm outline-none transition ${
                 errors.password
                   ? "border-rose-400 ring-2 ring-rose-100"
-                  : "border-slate-200 focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                  : "border-slate-200 focus:border-nexora-primary focus:ring-2 focus:ring-sky-100"
               }`}
               {...register("password")}
             />
-            {errors.password && (
-              <p className="mt-1 text-xs text-rose-600">{errors.password.message}</p>
-            )}
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-800"
+              aria-label={showPassword ? "Şifreyi gizle" : "Şifreyi göster"}
+            >
+              {showPassword ? <EyeOff className="size-4" aria-hidden /> : <Eye className="size-4" aria-hidden />}
+            </button>
           </div>
+          {errors.password ? (
+            <p id={`${passwordId}-error`} className="mt-1.5 text-xs text-rose-600" role="alert">
+              {errors.password.message}
+            </p>
+          ) : null}
+        </div>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-nexora-primary px-4 py-2.5 text-sm font-medium text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {isLoading && (
-              <span className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-            )}
-            {isLoading ? "Yukleniyor..." : "Kayit Ol"}
-          </button>
-        </form>
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-nexora-primary px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          {isLoading ? (
+            <span className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+          ) : null}
+          {isLoading ? "Yükleniyor…" : "Kayıt ol"}
+        </button>
+      </form>
 
-        <p className="mt-5 text-center text-sm text-slate-600">
-          Zaten hesabin var mi?{" "}
-          <Link className="font-medium text-nexora-accent hover:underline" to="/login">
-            Giris Yap
-          </Link>
-        </p>
-      </div>
-    </div>
+      <p className="mt-6 text-center text-sm text-slate-600">
+        Zaten hesabınız var mı?{" "}
+        <Link className="font-semibold text-nexora-accent hover:underline" to="/login">
+          Giriş yapın
+        </Link>
+      </p>
+    </AuthPageLayout>
   )
 }
 

@@ -36,7 +36,7 @@ export const useAuthStore = create((set, get) => ({
       await get().checkAuth()
       return response.data
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, "Giris yapilirken bir hata olustu."))
+      throw new Error(getApiErrorMessage(error, "Giriş yapılırken bir hata oluştu."))
     } finally {
       set({ isLoading: false })
     }
@@ -53,7 +53,7 @@ export const useAuthStore = create((set, get) => ({
       }
       return response.data
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, "Kayit olurken bir hata olustu."))
+      throw new Error(getApiErrorMessage(error, "Kayıt olurken bir hata oluştu."))
     } finally {
       set({ isLoading: false })
     }
