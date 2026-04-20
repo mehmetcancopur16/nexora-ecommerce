@@ -11,9 +11,20 @@ const getApiErrorMessage = (error, fallbackMessage) =>
   error?.message ||
   fallbackMessage
 
-const getToken = () => localStorage.getItem(TOKEN_KEY)
-const setToken = (token) => localStorage.setItem(TOKEN_KEY, token)
-const clearToken = () => localStorage.removeItem(TOKEN_KEY)
+const getToken = () => localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY)
+const setToken = (token, persist = true) => {
+  if (persist) {
+    localStorage.setItem(TOKEN_KEY, token)
+    sessionStorage.removeItem(TOKEN_KEY)
+    return
+  }
+  sessionStorage.setItem(TOKEN_KEY, token)
+  localStorage.removeItem(TOKEN_KEY)
+}
+const clearToken = () => {
+  localStorage.removeItem(TOKEN_KEY)
+  sessionStorage.removeItem(TOKEN_KEY)
+}
 
 export const useAuthStore = create((set, get) => ({
   user: null,
@@ -28,10 +39,11 @@ export const useAuthStore = create((set, get) => ({
   login: async (payload) => {
     set({ isLoading: true })
     try {
-      const response = await axiosInstance.post(LOGIN_PATH, payload)
+      const { rememberMe = false, ...loginPayload } = payload
+      const response = await axiosInstance.post(LOGIN_PATH, loginPayload)
       const token = response?.data?.token || response?.data?.data?.token
       if (token) {
-        setToken(token)
+        setToken(token, rememberMe)
       }
       await get().checkAuth()
       return response.data
@@ -48,7 +60,7 @@ export const useAuthStore = create((set, get) => ({
       const response = await axiosInstance.post(REGISTER_PATH, payload)
       const token = response?.data?.token || response?.data?.data?.token
       if (token) {
-        setToken(token)
+        setToken(token, true)
         await get().checkAuth()
       }
       return response.data

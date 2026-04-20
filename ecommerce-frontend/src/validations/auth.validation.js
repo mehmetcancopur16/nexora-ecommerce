@@ -29,9 +29,20 @@ const phoneField = z
   .trim()
   .regex(/^\+?[0-9\s()-]{10,20}$/, "Geçerli bir telefon numarası giriniz.")
 
+const identifierField = z
+  .string({ required_error: "E-posta veya telefon zorunludur." })
+  .trim()
+  .min(1, "E-posta veya telefon zorunludur.")
+  .refine(
+    (value) =>
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || /^\+?[0-9\s()-]{10,20}$/.test(value),
+    "Geçerli bir e-posta veya telefon giriniz."
+  )
+
 export const loginSchema = z.object({
-  email: emailField,
+  identifier: identifierField,
   password: passwordField,
+  rememberMe: z.boolean().default(false),
 })
 
 export const registerSchema = z

@@ -3,12 +3,17 @@ const ApiError = require("../utils/apiError");
 const asyncHandler = require("../utils/asyncHandler");
 const { signUserToken } = require("../utils/token.util");
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const normalizePhone = (value) => value.trim().replace(/[\s()-]/g, "");
+
 exports.register = asyncHandler(async (req, res) => {
   const { firstName, lastName, email, phone, password } = req.body;
 
-  const existing = await User.findOne({ email });
+  const existing = await User.findOne({
+    $or: [{ email }, { phone: normalizePhone(phone) }],
+  });
   if (existing) {
-    throw new ApiError(409, "Bu e-posta adresi zaten kayıtlı", true);
+    throw new ApiError(409, "Bu e-posta veya telefon zaten kayıtlı", true);
   }
 
   const user = await User.create({
@@ -31,9 +36,14 @@ exports.register = asyncHandler(async (req, res) => {
 });
 
 exports.login = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { identifier, password } = req.body;
+  const normalizedIdentifier = identifier.trim();
+  const isEmailIdentifier = emailRegex.test(normalizedIdentifier);
+  const query = isEmailIdentifier
+    ? { email: normalizedIdentifier.toLowerCase() }
+    : { phone: normalizePhone(normalizedIdentifier) };
 
-  const user = await User.findOne({ email }).select("+password");
+  const user = await User.findOne(query).select("+password");
   if (!user) {
     throw new ApiError(401, "E-posta veya şifre hatalı", true);
   }

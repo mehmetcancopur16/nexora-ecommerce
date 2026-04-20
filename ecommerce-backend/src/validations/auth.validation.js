@@ -1,7 +1,17 @@
 const { z } = require("zod");
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phoneRegex = /^\+?[0-9\s()-]{10,20}$/;
+
 const loginBodySchema = z.object({
-  email: z.string().trim().email("Geçerli bir e-posta girin").max(320),
+  identifier: z
+    .string()
+    .trim()
+    .min(1, "E-posta veya telefon gerekli")
+    .max(320)
+    .refine((value) => emailRegex.test(value) || phoneRegex.test(value), {
+      message: "Geçerli bir e-posta veya telefon girin",
+    }),
   password: z.string().min(1, "Şifre gerekli").max(128),
 });
 

@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, ShieldCheck } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { Link, useNavigate } from "react-router"
@@ -22,8 +22,9 @@ function Login() {
     resolver: zodResolver(loginSchema),
     mode: "onChange",
     defaultValues: {
-      email: "",
+      identifier: "",
       password: "",
+      rememberMe: false,
     },
   })
 
@@ -37,9 +38,10 @@ function Login() {
     }
   }
 
-  const emailId = "login-email"
+  const identifierId = "login-identifier"
   const passwordId = "login-password"
-  const emailErrId = `${emailId}-error`
+  const rememberMeId = "login-remember-me"
+  const identifierErrId = `${identifierId}-error`
   const passwordErrId = `${passwordId}-error`
 
   return (
@@ -49,29 +51,35 @@ function Login() {
       breadcrumbLabel="Giriş"
     >
       <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700" htmlFor={emailId}>
-            E-posta
+        <div className="rounded-2xl border border-slate-200/80 bg-slate-50/60 p-4">
+          <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-700">
+            <ShieldCheck className="size-4 text-emerald-600" aria-hidden />
+            Hesabınıza güvenli giriş
+          </div>
+          <label className="mb-1.5 block text-sm font-medium text-slate-700" htmlFor={identifierId}>
+            E-posta veya telefon
           </label>
           <input
-            id={emailId}
-            type="email"
-            autoComplete="email"
-            aria-invalid={errors.email ? "true" : "false"}
-            aria-describedby={errors.email ? emailErrId : undefined}
-            placeholder="ornek@mail.com"
+            id={identifierId}
+            type="text"
+            autoComplete="username"
+            aria-invalid={errors.identifier ? "true" : "false"}
+            aria-describedby={errors.identifier ? identifierErrId : undefined}
+            placeholder="ornek@mail.com veya +90 5xx xxx xx xx"
             className={`w-full rounded-xl border bg-white/95 px-4 py-2.5 text-sm outline-none transition ${
-              errors.email
+              errors.identifier
                 ? "border-rose-400 ring-2 ring-rose-100"
                 : "border-slate-200 focus:border-nexora-primary focus:ring-2 focus:ring-sky-100"
             }`}
-            {...register("email")}
+            {...register("identifier")}
           />
-          {errors.email ? (
-            <p id={emailErrId} className="mt-1.5 text-xs text-rose-600" role="alert">
-              {errors.email.message}
+          {errors.identifier ? (
+            <p id={identifierErrId} className="mt-1.5 text-xs text-rose-600" role="alert">
+              {errors.identifier.message}
             </p>
-          ) : null}
+          ) : (
+            <p className="mt-1.5 text-xs text-slate-500">Kayıtlı e-posta adresinizi veya telefon numaranızı kullanın.</p>
+          )}
         </div>
 
         <div>
@@ -107,8 +115,28 @@ function Login() {
             <p id={passwordErrId} className="mt-1.5 text-xs text-rose-600" role="alert">
               {errors.password.message}
             </p>
-          ) : null}
+          ) : (
+            <p className="mt-1.5 text-xs text-slate-500">Şifreniz en az 8 karakterden oluşmalıdır.</p>
+          )}
         </div>
+
+        <label
+          htmlFor={rememberMeId}
+          className="flex cursor-pointer items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3"
+        >
+          <span>
+            <span className="block text-sm font-medium text-slate-700">Beni hatırla</span>
+            <span className="block text-xs text-slate-500">
+              İşaretlerseniz bu cihazda oturumunuz kalıcı olarak açık kalır.
+            </span>
+          </span>
+          <input
+            id={rememberMeId}
+            type="checkbox"
+            className="size-4 rounded border-slate-300 text-nexora-primary focus:ring-sky-300"
+            {...register("rememberMe")}
+          />
+        </label>
 
         <button
           type="submit"

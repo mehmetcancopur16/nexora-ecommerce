@@ -1,6 +1,12 @@
 import axios from "axios"
 
 const TOKEN_KEY = "nexora_token"
+const getToken = () => localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY)
+
+const clearToken = () => {
+  localStorage.removeItem(TOKEN_KEY)
+  sessionStorage.removeItem(TOKEN_KEY)
+}
 
 let onUnauthorized = null
 
@@ -14,7 +20,7 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem(TOKEN_KEY)
+    const token = getToken()
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -30,7 +36,7 @@ axiosInstance.interceptors.response.use(
       if (typeof onUnauthorized === "function") {
         onUnauthorized()
       } else {
-        localStorage.removeItem(TOKEN_KEY)
+        clearToken()
       }
       if (window.location.pathname !== "/login") {
         window.location.assign("/login")
