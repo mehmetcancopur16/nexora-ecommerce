@@ -42,6 +42,7 @@ function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const isAdmin = user?.role === "admin"
+  const displayName = [user?.firstName, user?.lastName].filter(Boolean).join(" ") || user?.name || "Profil"
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -195,7 +196,7 @@ function Navbar() {
               <>
                 <NavLink to="/profile" className={navClass} title="Profil">
                   <User size={17} />
-                  <span className="max-w-[120px] truncate sm:max-w-[140px]">{user?.name || "Profil"}</span>
+                  <span className="max-w-[120px] truncate sm:max-w-[140px]">{displayName}</span>
                 </NavLink>
                 <motion.button
                   type="button"
@@ -276,7 +277,7 @@ function Navbar() {
                 <>
                   <NavLink to="/profile" onClick={closeMobileMenu} className={navClass}>
                     <User size={17} />
-                    {user?.name || "Profil"}
+                    {displayName}
                   </NavLink>
                   <button
                     type="button"

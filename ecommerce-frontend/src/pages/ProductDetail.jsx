@@ -266,7 +266,11 @@ function ProductDetail() {
             reviews.map((review) => (
               <article key={review._id} className="rounded-xl border border-slate-200 p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="font-semibold text-slate-800">{review?.user?.name || "Kullanici"}</p>
+                  <p className="font-semibold text-slate-800">
+                    {[review?.user?.firstName, review?.user?.lastName].filter(Boolean).join(" ") ||
+                      review?.user?.name ||
+                      "Kullanici"}
+                  </p>
                   <span className="text-xs text-slate-500">
                     {new Date(review.createdAt).toLocaleDateString("tr-TR")}
                   </span>

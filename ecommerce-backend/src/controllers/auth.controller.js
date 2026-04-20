@@ -4,7 +4,7 @@ const asyncHandler = require("../utils/asyncHandler");
 const { signUserToken } = require("../utils/token.util");
 
 exports.register = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  const { firstName, lastName, email, phone, password } = req.body;
 
   const existing = await User.findOne({ email });
   if (existing) {
@@ -12,8 +12,10 @@ exports.register = asyncHandler(async (req, res) => {
   }
 
   const user = await User.create({
-    name,
+    firstName,
+    lastName,
     email,
+    phone,
     password,
     role: "user",
   });

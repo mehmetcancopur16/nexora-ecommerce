@@ -1,11 +1,20 @@
 import { z } from "zod"
 
 export const profileUpdateSchema = z.object({
-  name: z
-    .string({ required_error: "Isim zorunludur." })
+  firstName: z
+    .string({ required_error: "Ad zorunludur." })
     .trim()
-    .min(2, "Isim en az 2 karakter olmalidir.")
-    .max(80, "Isim en fazla 80 karakter olabilir."),
+    .min(2, "Ad en az 2 karakter olmalidir.")
+    .max(60, "Ad en fazla 60 karakter olabilir."),
+  lastName: z
+    .string({ required_error: "Soyad zorunludur." })
+    .trim()
+    .min(2, "Soyad en az 2 karakter olmalidir.")
+    .max(60, "Soyad en fazla 60 karakter olabilir."),
+  phone: z
+    .string({ required_error: "Telefon numarasi zorunludur." })
+    .trim()
+    .regex(/^\+?[0-9\s()-]{10,20}$/, "Gecerli bir telefon numarasi giriniz."),
   street: z
     .string({ required_error: "Sokak bilgisi zorunludur." })
     .trim()

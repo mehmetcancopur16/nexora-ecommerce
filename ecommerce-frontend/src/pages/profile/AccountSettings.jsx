@@ -19,7 +19,9 @@ function AccountSettings() {
     resolver: zodResolver(profileUpdateSchema),
     mode: "onChange",
     defaultValues: {
-      name: "",
+      firstName: "",
+      lastName: "",
+      phone: "",
       street: "",
       city: "",
       zip: "",
@@ -43,7 +45,9 @@ function AccountSettings() {
 
   useEffect(() => {
     resetProfileForm({
-      name: user?.name || "",
+      firstName: user?.firstName || "",
+      lastName: user?.lastName || "",
+      phone: user?.phone || "",
       street: user?.address?.street || "",
       city: user?.address?.city || "",
       zip: user?.address?.zip || "",
@@ -53,7 +57,9 @@ function AccountSettings() {
   const onSubmitProfile = async (values) => {
     try {
       await axiosInstance.patch("/users/profile", {
-        name: values.name,
+        firstName: values.firstName,
+        lastName: values.lastName,
+        phone: values.phone,
         address: {
           street: values.street,
           city: values.city,
@@ -87,18 +93,33 @@ function AccountSettings() {
         <form className="mt-4 space-y-4" onSubmit={handleProfileSubmit(onSubmitProfile)}>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Isim</label>
+              <label className="mb-1 block text-sm font-medium text-slate-700">Ad</label>
               <input
                 type="text"
                 className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition ${
-                  profileErrors.name
+                  profileErrors.firstName
                     ? "border-rose-400 ring-2 ring-rose-100"
                     : "border-slate-200 focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
                 }`}
-                {...registerProfile("name")}
+                {...registerProfile("firstName")}
               />
-              {profileErrors.name && (
-                <p className="mt-1 text-xs text-rose-600">{profileErrors.name.message}</p>
+              {profileErrors.firstName && (
+                <p className="mt-1 text-xs text-rose-600">{profileErrors.firstName.message}</p>
+              )}
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-slate-700">Soyad</label>
+              <input
+                type="text"
+                className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition ${
+                  profileErrors.lastName
+                    ? "border-rose-400 ring-2 ring-rose-100"
+                    : "border-slate-200 focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                }`}
+                {...registerProfile("lastName")}
+              />
+              {profileErrors.lastName && (
+                <p className="mt-1 text-xs text-rose-600">{profileErrors.lastName.message}</p>
               )}
             </div>
 
@@ -111,6 +132,22 @@ function AccountSettings() {
                 className="w-full cursor-not-allowed rounded-xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-sm text-slate-500 outline-none"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Telefon</label>
+            <input
+              type="tel"
+              className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition ${
+                profileErrors.phone
+                  ? "border-rose-400 ring-2 ring-rose-100"
+                  : "border-slate-200 focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+              }`}
+              {...registerProfile("phone")}
+            />
+            {profileErrors.phone && (
+              <p className="mt-1 text-xs text-rose-600">{profileErrors.phone.message}</p>
+            )}
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">

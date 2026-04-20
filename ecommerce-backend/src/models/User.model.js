@@ -21,12 +21,18 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     isActive: { type: Boolean, default: true, index: true },
-    name: { type: String, trim: true, default: "" },
+    firstName: { type: String, trim: true, default: "" },
+    lastName: { type: String, trim: true, default: "" },
+    phone: { type: String, trim: true, default: "" },
     address: { type: addressSchema, default: () => ({}) },
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+userSchema.virtual("name").get(function getName() {
+  return `${this.firstName || ""} ${this.lastName || ""}`.trim();
+});
 
 userSchema.pre("save", async function preSave(next) {
   if (!this.isModified("password")) {

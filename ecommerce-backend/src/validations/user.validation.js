@@ -7,7 +7,13 @@ const objectIdSchema = z
 
 const updateProfileSchema = z
   .object({
-    name: z.string().trim().min(2, "İsim en az 2 karakter olmalı").max(80).optional(),
+    firstName: z.string().trim().min(2, "Ad en az 2 karakter olmalı").max(60).optional(),
+    lastName: z.string().trim().min(2, "Soyad en az 2 karakter olmalı").max(60).optional(),
+    phone: z
+      .string()
+      .trim()
+      .regex(/^\+?[0-9\s()-]{10,20}$/, "Geçerli bir telefon numarası girin")
+      .optional(),
     address: z
       .object({
         street: z.string().trim().min(1).max(120).optional(),

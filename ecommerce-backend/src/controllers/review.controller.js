@@ -26,7 +26,7 @@ exports.createReview = asyncHandler(async (req, res) => {
   });
 
   await review.populate([
-    { path: "user", select: "name email role" },
+    { path: "user", select: "firstName lastName email role" },
     { path: "product", select: "name averageRating numOfReviews" },
   ]);
 
@@ -42,7 +42,7 @@ exports.getProductReviews = asyncHandler(async (req, res) => {
 
   const reviews = await Review.find({ product: productId })
     .sort({ createdAt: -1 })
-    .populate({ path: "user", select: "name role" });
+    .populate({ path: "user", select: "firstName lastName role" });
 
   res.json({ success: true, data: reviews });
 });

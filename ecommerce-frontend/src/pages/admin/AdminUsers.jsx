@@ -42,8 +42,9 @@ function AdminUsers() {
         <table className="min-w-full text-sm">
           <thead className="bg-slate-50 text-left text-slate-600">
             <tr>
-              <th className="px-4 py-3">Isim</th>
+              <th className="px-4 py-3">Ad Soyad</th>
               <th className="px-4 py-3">E-posta</th>
+              <th className="px-4 py-3">Telefon</th>
               <th className="px-4 py-3">Rol</th>
               <th className="px-4 py-3">Durum</th>
             </tr>
@@ -51,15 +52,18 @@ function AdminUsers() {
           <tbody>
             {isLoading ? (
               <tr>
-                <td className="px-4 py-4 text-slate-500" colSpan={4}>
+                <td className="px-4 py-4 text-slate-500" colSpan={5}>
                   Yukleniyor...
                 </td>
               </tr>
             ) : (
               users.map((user) => (
                 <tr key={user._id} className="border-t border-slate-100">
-                  <td className="px-4 py-3 font-medium text-slate-700">{user.name || "-"}</td>
+                  <td className="px-4 py-3 font-medium text-slate-700">
+                    {[user.firstName, user.lastName].filter(Boolean).join(" ") || "-"}
+                  </td>
                   <td className="px-4 py-3 text-slate-700">{user.email}</td>
+                  <td className="px-4 py-3 text-slate-700">{user.phone || "-"}</td>
                   <td className="px-4 py-3">
                     <select
                       value={user.role}

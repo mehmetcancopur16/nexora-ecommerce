@@ -20,8 +20,16 @@ exports.updateProfile = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Kullanıcı bulunamadı", true);
   }
 
-  if (req.body.name !== undefined) {
-    user.name = req.body.name;
+  if (req.body.firstName !== undefined) {
+    user.firstName = req.body.firstName;
+  }
+
+  if (req.body.lastName !== undefined) {
+    user.lastName = req.body.lastName;
+  }
+
+  if (req.body.phone !== undefined) {
+    user.phone = req.body.phone;
   }
 
   if (req.body.address) {

@@ -91,7 +91,7 @@ exports.createOrder = asyncHandler(async (req, res) => {
 
   const populatedOrder = await Order.findById(createdOrder._id)
     .populate({ path: "items.product", select: "name description images" })
-    .populate({ path: "user", select: "email role name" });
+    .populate({ path: "user", select: "email role firstName lastName" });
 
   res.status(201).json({ success: true, data: populatedOrder });
 });
@@ -109,7 +109,7 @@ exports.getMyOrders = asyncHandler(async (req, res) => {
 exports.getAllOrders = asyncHandler(async (_req, res) => {
   const orders = await Order.find()
     .sort({ createdAt: -1 })
-    .populate({ path: "user", select: "email role name" })
+    .populate({ path: "user", select: "email role firstName lastName" })
     .populate({ path: "items.product", select: "name description images" });
 
   res.json({ success: true, data: orders });
@@ -128,7 +128,7 @@ exports.updateOrderStatus = asyncHandler(async (req, res) => {
     { status },
     { new: true, runValidators: true }
   )
-    .populate({ path: "user", select: "email role name" })
+    .populate({ path: "user", select: "email role firstName lastName" })
     .populate({ path: "items.product", select: "name description images" });
 
   if (!order) {
