@@ -181,6 +181,23 @@ exports.getMyOrderById = asyncHandler(async (req, res) => {
   res.json({ success: true, data: order });
 });
 
+exports.cancelMyOrder = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const { id } = req.params;
+  const order = await Order.findOne({ _id: id, user: userId });
+
+  if (!order) {
+    throw new ApiError(404, "Sipariş bulunamadı", true);
+  }
+  if (["delivered", "cancelled"].includes(order.status)) {
+    throw new ApiError(400, "Bu sipariş iptal edilemez", true);
+  }
+
+  order.status = "cancelled";
+  await order.save();
+  res.json({ success: true, data: order, message: "Sipariş iptal edildi" });
+});
+
 exports.getAllOrders = asyncHandler(async (_req, res) => {
   const orders = await Order.find()
     .sort({ createdAt: -1 })

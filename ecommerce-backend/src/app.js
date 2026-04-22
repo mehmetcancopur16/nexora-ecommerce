@@ -22,6 +22,9 @@ const adminRoutes = require("./routes/admin.routes");
 const newsletterRoutes = require("./routes/newsletter.routes");
 const contactRoutes = require("./routes/contact.routes");
 const authRoutes = require("./routes/auth.routes");
+const paymentMethodRoutes = require("./routes/paymentMethod.routes");
+const notificationRoutes = require("./routes/notification.routes");
+const returnRoutes = require("./routes/return.routes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -118,6 +121,9 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/newsletter", newsletterRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/payment-methods", paymentMethodRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/returns", returnRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

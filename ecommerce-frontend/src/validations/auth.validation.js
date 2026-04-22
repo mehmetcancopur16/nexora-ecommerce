@@ -1,7 +1,6 @@
 import { z } from "zod"
 import { composeInternationalPhone, digitsOnly } from "../utils/phone"
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 /** Aligned with backend register/login phone pattern */
 const composedPhoneRegex = /^\+?[0-9\s()-]{10,20}$/
 

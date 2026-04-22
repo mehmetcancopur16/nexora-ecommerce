@@ -67,7 +67,29 @@ const registerBodySchema = z.object({
   message: "Şifreler eşleşmiyor",
 });
 
+const forgotPasswordSchema = z.object({
+  email: z.string().trim().email("Geçerli bir e-posta girin").max(320),
+});
+
+const resetPasswordSchema = z
+  .object({
+    token: z.string().trim().min(6, "Token zorunlu"),
+    newPassword: z
+      .string()
+      .min(8, "Yeni şifre en az 8 karakter olmalı")
+      .regex(/[A-Z]/, "Yeni şifre en az bir büyük harf içermeli")
+      .regex(/[a-z]/, "Yeni şifre en az bir küçük harf içermeli")
+      .regex(/[0-9]/, "Yeni şifre en az bir rakam içermeli"),
+    confirmPassword: z.string().min(8, "Şifre tekrarı zorunlu"),
+  })
+  .refine((values) => values.newPassword === values.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Şifreler eşleşmiyor",
+  });
+
 module.exports = {
   loginBodySchema,
   registerBodySchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
 };

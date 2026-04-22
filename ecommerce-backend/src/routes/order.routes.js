@@ -80,6 +80,7 @@ router.post(
  */
 router.get("/my", orderController.getMyOrders);
 router.get("/my/:id", validateParams(orderIdParamSchema), orderController.getMyOrderById);
+router.post("/my/:id/cancel", validateParams(orderIdParamSchema), orderController.cancelMyOrder);
 
 /**
  * @openapi

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react"
+import { Link } from "react-router"
+import { toast } from "sonner"
 import axiosInstance from "../../api/axiosInstance"
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api").replace(/\/api$/, "")
@@ -51,6 +53,18 @@ function OrderHistory() {
     fetchOrders()
   }, [])
 
+  const cancelOrder = async (orderId) => {
+    try {
+      const response = await axiosInstance.post(`/orders/my/${orderId}/cancel`)
+      setOrders((prev) =>
+        prev.map((item) => (item._id === orderId ? { ...item, status: response?.data?.data?.status } : item))
+      )
+      toast.success("Siparis iptal edildi.")
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Siparis iptal edilemedi.")
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="space-y-3">
@@ -86,7 +100,7 @@ function OrderHistory() {
             >
               <div>
                 <p className="text-sm text-slate-500">Siparis No</p>
-                <p className="font-semibold text-slate-800">{order._id}</p>
+                <p className="font-semibold text-slate-800">{order.orderNumber || order._id}</p>
               </div>
               <div>
                 <p className="text-sm text-slate-500">Tarih</p>
@@ -130,6 +144,29 @@ function OrderHistory() {
                       </div>
                     </div>
                   ))}
+                </div>
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <Link
+                    to={`/profile/orders/${order._id}`}
+                    className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700"
+                  >
+                    Detaylar
+                  </Link>
+                  {["pending", "processing"].includes(order.status) ? (
+                    <button
+                      type="button"
+                      onClick={() => cancelOrder(order._id)}
+                      className="rounded-lg border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-600"
+                    >
+                      Siparisi Iptal Et
+                    </button>
+                  ) : null}
+                  <Link
+                    to="/profile/returns"
+                    className="rounded-lg border border-sky-200 px-3 py-1.5 text-xs font-semibold text-sky-700"
+                  >
+                    Iade Talebi
+                  </Link>
                 </div>
               </div>
             )}

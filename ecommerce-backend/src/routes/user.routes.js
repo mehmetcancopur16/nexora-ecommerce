@@ -7,6 +7,9 @@ const {
   updateProfileSchema,
   updatePasswordSchema,
   wishlistParamSchema,
+  createAddressSchema,
+  updateAddressSchema,
+  addressIdParamSchema,
 } = require("../validations/user.validation");
 
 const router = express.Router();
@@ -200,6 +203,25 @@ router.patch(
   "/wishlist/:productId",
   validateParams(wishlistParamSchema),
   userController.toggleWishlist
+);
+
+router.get("/addresses", userController.getAddresses);
+router.post("/addresses", validateBody(createAddressSchema), userController.addAddress);
+router.patch(
+  "/addresses/:addressId",
+  validateParams(addressIdParamSchema),
+  validateBody(updateAddressSchema),
+  userController.updateAddress
+);
+router.delete(
+  "/addresses/:addressId",
+  validateParams(addressIdParamSchema),
+  userController.deleteAddress
+);
+router.patch(
+  "/addresses/:addressId/default",
+  validateParams(addressIdParamSchema),
+  userController.setDefaultAddress
 );
 
 module.exports = router;

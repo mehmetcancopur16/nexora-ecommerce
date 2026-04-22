@@ -20,8 +20,14 @@ import Register from "./pages/Register"
 import StaticPage from "./pages/StaticPage"
 import Support from "./pages/Support"
 import AccountSettings from "./pages/profile/AccountSettings"
+import Addresses from "./pages/profile/Addresses"
+import Notifications from "./pages/profile/Notifications"
+import OrderDetail from "./pages/profile/OrderDetail"
 import OrderHistory from "./pages/profile/OrderHistory"
+import PaymentMethods from "./pages/profile/PaymentMethods"
 import ProfileLayout from "./pages/profile/ProfileLayout"
+import Returns from "./pages/profile/Returns"
+import Security from "./pages/profile/Security"
 import Wishlist from "./pages/profile/Wishlist"
 import { useAuthStore } from "./store/authStore"
 
@@ -53,7 +59,13 @@ function App() {
             <Route path="profile" element={<ProfileLayout />}>
               <Route index element={<AccountSettings />} />
               <Route path="orders" element={<OrderHistory />} />
+              <Route path="orders/:id" element={<OrderDetail />} />
               <Route path="wishlist" element={<Wishlist />} />
+              <Route path="addresses" element={<Addresses />} />
+              <Route path="payment-methods" element={<PaymentMethods />} />
+              <Route path="notifications" element={<Notifications />} />
+              <Route path="security" element={<Security />} />
+              <Route path="returns" element={<Returns />} />
             </Route>
           </Route>
 

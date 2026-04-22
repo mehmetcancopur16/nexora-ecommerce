@@ -10,9 +10,22 @@ const normalizePhone = (value) => {
 
 const addressSchema = new mongoose.Schema(
   {
+    label: { type: String, trim: true, default: "Ev" },
     street: { type: String, trim: true, default: "" },
     city: { type: String, trim: true, default: "" },
     zip: { type: String, trim: true, default: "" },
+    country: { type: String, trim: true, default: "Türkiye" },
+    isDefault: { type: Boolean, default: false },
+  },
+  { _id: true }
+);
+
+const notificationPreferencesSchema = new mongoose.Schema(
+  {
+    orderUpdates: { type: Boolean, default: true },
+    promotions: { type: Boolean, default: true },
+    securityAlerts: { type: Boolean, default: true },
+    productNews: { type: Boolean, default: false },
   },
   { _id: false }
 );
@@ -32,7 +45,12 @@ const userSchema = new mongoose.Schema(
     lastName: { type: String, trim: true, default: "" },
     phone: { type: String, default: "", set: normalizePhone },
     address: { type: addressSchema, default: () => ({}) },
+    addresses: { type: [addressSchema], default: [] },
+    notificationPreferences: { type: notificationPreferencesSchema, default: () => ({}) },
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
+    lastPasswordChangeAt: { type: Date, default: null },
+    resetPasswordToken: { type: String, default: null, select: false },
+    resetPasswordExpiresAt: { type: Date, default: null, select: false },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );

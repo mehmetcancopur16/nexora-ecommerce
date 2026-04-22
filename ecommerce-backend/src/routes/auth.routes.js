@@ -2,7 +2,12 @@ const express = require("express");
 const rateLimit = require("express-rate-limit");
 const authController = require("../controllers/auth.controller");
 const { validateBody } = require("../middlewares/validate.middleware");
-const { loginBodySchema, registerBodySchema } = require("../validations/auth.validation");
+const {
+  loginBodySchema,
+  registerBodySchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+} = require("../validations/auth.validation");
 
 const router = express.Router();
 
@@ -106,5 +111,7 @@ router.post("/register", authLimiter, validateBody(registerBodySchema), authCont
  *         description: Kimlik doğrulama başarısız
  */
 router.post("/login", authLimiter, validateBody(loginBodySchema), authController.login);
+router.post("/forgot-password", authLimiter, validateBody(forgotPasswordSchema), authController.forgotPassword);
+router.post("/reset-password", authLimiter, validateBody(resetPasswordSchema), authController.resetPassword);
 
 module.exports = router;

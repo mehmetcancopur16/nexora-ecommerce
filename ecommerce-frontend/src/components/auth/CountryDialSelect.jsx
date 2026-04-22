@@ -18,7 +18,7 @@ function CountryDialSelect({ id, value, onChange, disabled, hasError, ariaDescri
           : "border-slate-200 focus:border-nexora-primary focus:ring-2 focus:ring-sky-100"
       }`}
     >
-      {COUNTRY_DIAL_CODES.map(({ code, name, dial }) => (
+      {COUNTRY_DIAL_CODES.map(({ code, dial }) => (
         <option key={code} value={dial}>
           {code} {dial}
         </option>

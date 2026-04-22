@@ -119,3 +119,116 @@ exports.toggleWishlist = asyncHandler(async (req, res) => {
     data: user.wishlist,
   });
 });
+
+exports.getAddresses = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user.id).select("addresses");
+  if (!user) {
+    throw new ApiError(404, "Kullanıcı bulunamadı", true);
+  }
+  res.json({ success: true, data: user.addresses || [] });
+});
+
+exports.addAddress = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user.id).select("addresses address");
+  if (!user) {
+    throw new ApiError(404, "Kullanıcı bulunamadı", true);
+  }
+
+  const payload = req.body;
+  if (payload.isDefault) {
+    user.addresses = (user.addresses || []).map((item) => ({ ...item.toObject(), isDefault: false }));
+  }
+
+  user.addresses.push(payload);
+
+  if (payload.isDefault || user.addresses.length === 1) {
+    user.address = {
+      street: payload.street,
+      city: payload.city,
+      zip: payload.zip,
+      country: payload.country,
+      label: payload.label,
+      isDefault: true,
+    };
+  }
+
+  await user.save();
+  res.status(201).json({ success: true, data: user.addresses });
+});
+
+exports.updateAddress = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user.id).select("addresses address");
+  if (!user) {
+    throw new ApiError(404, "Kullanıcı bulunamadı", true);
+  }
+
+  const address = user.addresses.id(req.params.addressId);
+  if (!address) {
+    throw new ApiError(404, "Adres bulunamadı", true);
+  }
+
+  Object.assign(address, req.body);
+  if (req.body.isDefault) {
+    user.addresses.forEach((item) => {
+      if (String(item._id) !== String(address._id)) {
+        item.isDefault = false;
+      }
+    });
+  }
+
+  if (address.isDefault) {
+    user.address = {
+      street: address.street,
+      city: address.city,
+      zip: address.zip,
+      country: address.country,
+      label: address.label,
+      isDefault: true,
+    };
+  }
+
+  await user.save();
+  res.json({ success: true, data: user.addresses });
+});
+
+exports.deleteAddress = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user.id).select("addresses");
+  if (!user) {
+    throw new ApiError(404, "Kullanıcı bulunamadı", true);
+  }
+  const address = user.addresses.id(req.params.addressId);
+  if (!address) {
+    throw new ApiError(404, "Adres bulunamadı", true);
+  }
+  const wasDefault = address.isDefault;
+  address.deleteOne();
+  if (wasDefault && user.addresses.length) {
+    user.addresses[0].isDefault = true;
+  }
+  await user.save();
+  res.json({ success: true, data: user.addresses });
+});
+
+exports.setDefaultAddress = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user.id).select("addresses address");
+  if (!user) {
+    throw new ApiError(404, "Kullanıcı bulunamadı", true);
+  }
+  const address = user.addresses.id(req.params.addressId);
+  if (!address) {
+    throw new ApiError(404, "Adres bulunamadı", true);
+  }
+  user.addresses.forEach((item) => {
+    item.isDefault = String(item._id) === String(address._id);
+  });
+  user.address = {
+    street: address.street,
+    city: address.city,
+    zip: address.zip,
+    country: address.country,
+    label: address.label,
+    isDefault: true,
+  };
+  await user.save();
+  res.json({ success: true, data: user.addresses });
+});

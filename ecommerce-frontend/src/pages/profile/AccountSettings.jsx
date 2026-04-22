@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { Link } from "react-router"
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -9,6 +10,15 @@ import { passwordUpdateSchema, profileUpdateSchema } from "../../validations/pro
 function AccountSettings() {
   const user = useAuthStore((state) => state.user)
   const checkAuth = useAuthStore((state) => state.checkAuth)
+  const completionFields = [
+    user?.firstName,
+    user?.lastName,
+    user?.phone,
+    user?.address?.street,
+    user?.address?.city,
+    user?.address?.zip,
+  ]
+  const completion = Math.round((completionFields.filter(Boolean).length / completionFields.length) * 100)
 
   const {
     register: registerProfile,
@@ -88,6 +98,25 @@ function AccountSettings() {
 
   return (
     <div className="space-y-6">
+      <section className="rounded-2xl border border-sky-200 bg-gradient-to-r from-sky-50 to-indigo-50 p-5 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-medium text-slate-600">Profil Tamamlanma Durumu</p>
+            <p className="text-2xl font-bold text-slate-900">%{completion}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/profile/orders" className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700">
+              Siparisler
+            </Link>
+            <Link to="/profile/addresses" className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700">
+              Adresler
+            </Link>
+            <Link to="/profile/security" className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700">
+              Guvenlik
+            </Link>
+          </div>
+        </div>
+      </section>
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-xl font-semibold text-slate-800">Profil Guncelleme</h2>
         <form className="mt-4 space-y-4" onSubmit={handleProfileSubmit(onSubmitProfile)}>

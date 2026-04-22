@@ -40,8 +40,30 @@ const wishlistParamSchema = z.object({
   productId: objectIdSchema,
 });
 
+const addressSchema = z.object({
+  label: z.string().trim().min(2).max(50),
+  street: z.string().trim().min(1).max(120),
+  city: z.string().trim().min(1).max(80),
+  zip: z.string().trim().min(1).max(20),
+  country: z.string().trim().min(1).max(80),
+  isDefault: z.boolean().optional(),
+});
+
+const createAddressSchema = addressSchema;
+
+const updateAddressSchema = addressSchema.partial().refine((data) => Object.keys(data).length > 0, {
+  message: "Güncellenecek en az bir alan gerekli",
+});
+
+const addressIdParamSchema = z.object({
+  addressId: objectIdSchema,
+});
+
 module.exports = {
   updateProfileSchema,
   updatePasswordSchema,
   wishlistParamSchema,
+  createAddressSchema,
+  updateAddressSchema,
+  addressIdParamSchema,
 };

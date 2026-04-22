@@ -74,3 +74,48 @@ exports.login = asyncHandler(async (req, res) => {
     data: safe,
   });
 });
+
+exports.forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email: email.toLowerCase() }).select("+resetPasswordToken +resetPasswordExpiresAt");
+  if (!user) {
+    return res.json({
+      success: true,
+      message: "Eğer bu e-posta kayıtlıysa sıfırlama kodu gönderilecektir.",
+    });
+  }
+
+  const resetToken = String(Math.floor(100000 + Math.random() * 900000));
+  user.resetPasswordToken = resetToken;
+  user.resetPasswordExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
+  await user.save();
+
+  res.json({
+    success: true,
+    message: "Şifre sıfırlama kodu oluşturuldu.",
+    data: { resetToken }, // mock mode
+  });
+});
+
+exports.resetPassword = asyncHandler(async (req, res) => {
+  const { token, newPassword } = req.body;
+  const user = await User.findOne({
+    resetPasswordToken: token,
+    resetPasswordExpiresAt: { $gt: new Date() },
+  }).select("+resetPasswordToken +resetPasswordExpiresAt +password");
+
+  if (!user) {
+    throw new ApiError(400, "Sıfırlama kodu geçersiz veya süresi dolmuş", true);
+  }
+
+  user.password = newPassword;
+  user.resetPasswordToken = null;
+  user.resetPasswordExpiresAt = null;
+  user.lastPasswordChangeAt = new Date();
+  await user.save();
+
+  res.json({
+    success: true,
+    message: "Şifreniz başarıyla sıfırlandı",
+  });
+});
