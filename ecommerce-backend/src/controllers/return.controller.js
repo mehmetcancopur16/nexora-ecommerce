@@ -13,6 +13,22 @@ exports.createReturnRequest = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Bu sipariş için iade talebi oluşturulamaz", true);
   }
 
+  const lineIds = new Set();
+  (order.items || []).forEach((line) => {
+    if (line?._id) {
+      lineIds.add(String(line._id));
+    }
+    if (line?.product) {
+      const productId = line.product?._id ? String(line.product._id) : String(line.product);
+      lineIds.add(`product-${productId}`);
+    }
+  });
+  for (const item of items) {
+    if (!lineIds.has(String(item.orderItemId))) {
+      throw new ApiError(400, "Geçersiz sipariş kalemi", true);
+    }
+  }
+
   const created = await ReturnRequest.create({
     user: req.user.id,
     order: orderId,

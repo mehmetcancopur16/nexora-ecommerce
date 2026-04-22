@@ -10,15 +10,19 @@ const orderItemSchema = new mongoose.Schema(
     quantity: { type: Number, required: true, min: 1 },
     price: { type: Number, required: true, min: 0 },
   },
-  { _id: false }
+  { _id: true }
 );
 
 const shippingAddressSchema = new mongoose.Schema(
   {
-    street: { type: String, required: true, trim: true },
-    city: { type: String, required: true, trim: true },
-    zip: { type: String, required: true, trim: true },
-    country: { type: String, required: true, trim: true },
+    city: { type: String, trim: true, default: "" },
+    district: { type: String, trim: true, default: "" },
+    postalCode: { type: String, trim: true, default: "" },
+    openAddress: { type: String, trim: true, default: "" },
+    country: { type: String, trim: true, default: "Türkiye" },
+    // Legacy
+    street: { type: String, trim: true, default: "" },
+    zip: { type: String, trim: true, default: "" },
   },
   { _id: false }
 );

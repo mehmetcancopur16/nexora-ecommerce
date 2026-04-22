@@ -37,8 +37,13 @@ function buildSwaggerSpec() {
           Address: {
             type: "object",
             properties: {
-              street: { type: "string", example: "Ataturk Caddesi 10" },
-              city: { type: "string", example: "Istanbul" },
+              label: { type: "string", example: "Ev" },
+              city: { type: "string", example: "İstanbul" },
+              district: { type: "string", example: "Kadıköy" },
+              postalCode: { type: "string", example: "34000" },
+              openAddress: { type: "string", example: "Atatürk Caddesi No: 10" },
+              country: { type: "string", example: "Türkiye" },
+              street: { type: "string", example: "Atatürk Caddesi 10" },
               zip: { type: "string", example: "34000" },
             },
           },
@@ -113,10 +118,14 @@ function buildSwaggerSpec() {
           },
           ShippingAddress: {
             type: "object",
-            required: ["street", "city", "zip"],
+            required: ["city", "district", "postalCode", "openAddress", "country"],
             properties: {
-              street: { type: "string", example: "Ataturk Caddesi 10" },
-              city: { type: "string", example: "Istanbul" },
+              city: { type: "string", example: "İstanbul" },
+              district: { type: "string", example: "Kadıköy" },
+              postalCode: { type: "string", example: "34000" },
+              openAddress: { type: "string", example: "Atatürk Caddesi No: 10" },
+              country: { type: "string", example: "Türkiye" },
+              street: { type: "string", example: "Atatürk Caddesi 10" },
               zip: { type: "string", example: "34000" },
             },
           },

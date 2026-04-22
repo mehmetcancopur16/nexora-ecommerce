@@ -11,8 +11,12 @@ const normalizePhone = (value) => {
 const addressSchema = new mongoose.Schema(
   {
     label: { type: String, trim: true, default: "Ev" },
-    street: { type: String, trim: true, default: "" },
     city: { type: String, trim: true, default: "" },
+    district: { type: String, trim: true, default: "" },
+    postalCode: { type: String, trim: true, default: "" },
+    openAddress: { type: String, trim: true, default: "" },
+    // Legacy fields (migrated or mirrored)
+    street: { type: String, trim: true, default: "" },
     zip: { type: String, trim: true, default: "" },
     country: { type: String, trim: true, default: "Türkiye" },
     isDefault: { type: Boolean, default: false },

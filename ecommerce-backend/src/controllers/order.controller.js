@@ -8,6 +8,24 @@ const asyncHandler = require("../utils/asyncHandler");
 const generateOrderNumber = () => `NXR-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 const generateTransactionRef = () => `MOCK-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
 
+const normalizeShippingAddress = (addr) => {
+  if (!addr || typeof addr !== "object") {
+    return addr;
+  }
+  const open = addr.openAddress || addr.street || "";
+  const pc = addr.postalCode || addr.zip || "";
+  return {
+    ...addr,
+    openAddress: String(open).trim(),
+    city: String(addr.city || "").trim(),
+    district: String(addr.district || "").trim(),
+    postalCode: String(pc).trim(),
+    country: String(addr.country || "Türkiye").trim(),
+    street: String(addr.street || open).trim(),
+    zip: String(addr.zip || pc).trim(),
+  };
+};
+
 const buildOrderDraftFromCart = async ({ userId, session, shippingAddress, customer, paymentMethod }) => {
   const cart = await Cart.findOne({ user: userId }).session(session);
   if (!cart || cart.items.length === 0) {
@@ -52,7 +70,7 @@ const buildOrderDraftFromCart = async ({ userId, session, shippingAddress, custo
         user: userId,
         items: orderItems,
         totalAmount,
-        shippingAddress,
+        shippingAddress: normalizeShippingAddress(shippingAddress),
         customer,
         paymentMethod,
         paymentStatus: "pending_payment",

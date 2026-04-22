@@ -7,6 +7,7 @@
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
     "seed": "node src/utils/seeder.js",
+    "backfill:product-images": "node src/utils/backfillProductImages.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

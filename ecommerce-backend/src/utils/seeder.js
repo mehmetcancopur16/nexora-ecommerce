@@ -14,22 +14,52 @@ const seedUsers = [
     email: "admin@nexora.com",
     password: "Admin1234!",
     role: "admin",
-    name: "Nexora Admin",
-    address: { street: "Merkez Ofis", city: "Istanbul", zip: "34000" },
+    firstName: "Nexora",
+    lastName: "Admin",
+    phone: "+905551110001",
+    address: {
+      openAddress: "Merkez Ofis",
+      city: "İstanbul",
+      district: "Kadıköy",
+      postalCode: "34000",
+      country: "Türkiye",
+      street: "Merkez Ofis",
+      zip: "34000",
+    },
   },
   {
     email: "ayse.user@nexora.com",
     password: "User12345!",
     role: "user",
-    name: "Ayse Kaya",
-    address: { street: "Moda Caddesi", city: "Istanbul", zip: "34710" },
+    firstName: "Ayse",
+    lastName: "Kaya",
+    phone: "+905551110002",
+    address: {
+      openAddress: "Moda Caddesi",
+      city: "İstanbul",
+      district: "Kadıköy",
+      postalCode: "34710",
+      country: "Türkiye",
+      street: "Moda Caddesi",
+      zip: "34710",
+    },
   },
   {
     email: "mehmet.user@nexora.com",
     password: "User12345!",
     role: "user",
-    name: "Mehmet Demir",
-    address: { street: "Kordon", city: "Izmir", zip: "35220" },
+    firstName: "Mehmet",
+    lastName: "Demir",
+    phone: "+905551110003",
+    address: {
+      openAddress: "Kordon",
+      city: "İzmir",
+      district: "Konak",
+      postalCode: "35220",
+      country: "Türkiye",
+      street: "Kordon",
+      zip: "35220",
+    },
   },
 ];
 
@@ -67,7 +97,7 @@ function buildProducts(categoriesByName) {
       price: template.price,
       stock: template.stock,
       category: categoryId,
-      images: [`/uploads/products/product-${index + 1}.jpg`],
+      images: ["/uploads/products/demo-product.svg"],
       isActive: true,
     };
   });
@@ -107,7 +137,32 @@ function buildOrders(users, products) {
       items,
       totalAmount,
       status,
-      shippingAddress: user.address || { street: "Bilinmiyor", city: "Istanbul", zip: "34000" },
+      orderNumber: `NXR-SEED-${Date.now()}-${index + 1}`,
+      shippingAddress: user.address
+        ? {
+            openAddress: user.address.openAddress || user.address.street || "Bilinmiyor",
+            city: user.address.city || "İstanbul",
+            district: user.address.district || "Kadıköy",
+            postalCode: user.address.postalCode || user.address.zip || "34000",
+            country: user.address.country || "Türkiye",
+            street: user.address.street || user.address.openAddress || "Bilinmiyor",
+            zip: user.address.zip || user.address.postalCode || "34000",
+          }
+        : {
+            openAddress: "Bilinmiyor",
+            city: "İstanbul",
+            district: "Kadıköy",
+            postalCode: "34000",
+            country: "Türkiye",
+            street: "Bilinmiyor",
+            zip: "34000",
+          },
+      customer: {
+        firstName: user.firstName || "Demo",
+        lastName: user.lastName || "Kullanici",
+        email: user.email,
+        phone: user.phone || "+905550000000",
+      },
     };
   });
 }

@@ -16,9 +16,13 @@ const updateProfileSchema = z
       .optional(),
     address: z
       .object({
-        street: z.string().trim().min(1).max(120).optional(),
         city: z.string().trim().min(1).max(80).optional(),
+        district: z.string().trim().min(1).max(80).optional(),
+        postalCode: z.string().trim().min(1).max(10).optional(),
+        openAddress: z.string().trim().min(1).max(500).optional(),
+        street: z.string().trim().min(1).max(120).optional(),
         zip: z.string().trim().min(1).max(20).optional(),
+        country: z.string().trim().min(1).max(80).optional(),
       })
       .optional(),
   })
@@ -41,12 +45,15 @@ const wishlistParamSchema = z.object({
 });
 
 const addressSchema = z.object({
-  label: z.string().trim().min(2).max(50),
-  street: z.string().trim().min(1).max(120),
-  city: z.string().trim().min(1).max(80),
-  zip: z.string().trim().min(1).max(20),
-  country: z.string().trim().min(1).max(80),
+  label: z.string().trim().min(1).max(50).optional(),
+  city: z.string().trim().min(1, "İl zorunlu").max(80),
+  district: z.string().trim().min(1, "İlçe zorunlu").max(80),
+  postalCode: z.string().trim().min(1, "Posta kodu zorunlu").max(10),
+  openAddress: z.string().trim().min(5, "Açık adres en az 5 karakter").max(500),
+  country: z.string().trim().min(1).max(80).default("Türkiye"),
   isDefault: z.boolean().optional(),
+  street: z.string().trim().max(120).optional(),
+  zip: z.string().trim().max(20).optional(),
 });
 
 const createAddressSchema = addressSchema;

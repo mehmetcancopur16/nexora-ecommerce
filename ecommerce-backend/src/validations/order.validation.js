@@ -10,10 +10,13 @@ const paymentStatusEnum = z.enum(["pending_payment", "paid", "failed"]);
 
 const shippingAddressSchema = z.object({
   shippingAddress: z.object({
-    street: z.string().min(1, "Sokak bilgisi zorunlu").trim(),
-    city: z.string().min(1, "Şehir bilgisi zorunlu").trim(),
-    zip: z.string().min(1, "Posta kodu zorunlu").trim(),
-    country: z.string().min(1, "Ülke bilgisi zorunlu").trim(),
+    city: z.string().min(1, "İl zorunlu").trim(),
+    district: z.string().min(1, "İlçe zorunlu").trim(),
+    postalCode: z.string().min(1, "Posta kodu zorunlu").trim().max(10),
+    openAddress: z.string().min(5, "Açık adres en az 5 karakter").trim().max(500),
+    country: z.string().min(1, "Ülke zorunlu").trim().default("Türkiye"),
+    street: z.string().trim().max(200).optional(),
+    zip: z.string().trim().max(20).optional(),
   }),
 });
 
