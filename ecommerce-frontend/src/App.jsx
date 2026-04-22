@@ -28,13 +28,25 @@ import PaymentMethods from "./pages/profile/PaymentMethods"
 import ProfileLayout from "./pages/profile/ProfileLayout"
 import Wishlist from "./pages/profile/Wishlist"
 import { useAuthStore } from "./store/authStore"
+import { useNotificationStore } from "./store/notificationStore"
 
 function App() {
   const checkAuth = useAuthStore((state) => state.checkAuth)
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const fetchNotifications = useNotificationStore((state) => state.fetchNotifications)
+  const resetNotifications = useNotificationStore((state) => state.reset)
 
   useEffect(() => {
     checkAuth()
   }, [checkAuth])
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchNotifications()
+    } else {
+      resetNotifications()
+    }
+  }, [isAuthenticated, fetchNotifications, resetNotifications])
 
   return (
     <BrowserRouter>
