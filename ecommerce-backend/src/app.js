@@ -30,9 +30,10 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: process.env.NODE_ENV === "production" ? 600 : 3000,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => req.path === "/health" || req.path === "/api/health",
   message: {
     success: false,
     message: "Çok fazla istek gönderildi. Lütfen daha sonra tekrar deneyin.",
