@@ -25,7 +25,7 @@ cp .env.example .env
 
 Kullanilan degiskenler:
 
-- `VITE_API_BASE_URL` (varsayilan fallback: `http://localhost:5000/api`)
+- `VITE_API_BASE_URL` (varsayilan fallback: `http://localhost:5001/api`)
 - `VITE_AUTH_LOGIN_PATH` (opsiyonel, varsayilan `/auth/login`)
 - `VITE_AUTH_REGISTER_PATH` (opsiyonel, varsayilan `/auth/register`)
 

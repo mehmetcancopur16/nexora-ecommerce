@@ -26,8 +26,6 @@ import OrderDetail from "./pages/profile/OrderDetail"
 import OrderHistory from "./pages/profile/OrderHistory"
 import PaymentMethods from "./pages/profile/PaymentMethods"
 import ProfileLayout from "./pages/profile/ProfileLayout"
-import Returns from "./pages/profile/Returns"
-import Security from "./pages/profile/Security"
 import Wishlist from "./pages/profile/Wishlist"
 import { useAuthStore } from "./store/authStore"
 
@@ -64,8 +62,8 @@ function App() {
               <Route path="addresses" element={<Addresses />} />
               <Route path="payment-methods" element={<PaymentMethods />} />
               <Route path="notifications" element={<Notifications />} />
-              <Route path="security" element={<Security />} />
-              <Route path="returns" element={<Returns />} />
+              <Route path="security" element={<Navigate to="/profile" replace />} />
+              <Route path="returns" element={<Navigate to="/profile/orders?tab=returns" replace />} />
             </Route>
           </Route>
 

@@ -145,6 +145,17 @@ export const useProductStore = create((set, get) => ({
       mergedFilters.page = 1
     }
 
+    const hasQueryChange =
+      mergedFilters.search !== currentFilters.search ||
+      mergedFilters.category !== currentFilters.category ||
+      mergedFilters.page !== currentFilters.page ||
+      mergedFilters.limit !== currentFilters.limit ||
+      mergedFilters.sort !== currentFilters.sort
+
+    if (!hasQueryChange) {
+      return
+    }
+
     set({ filters: mergedFilters })
     await get().fetchProducts()
   },

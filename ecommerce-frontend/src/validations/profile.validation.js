@@ -1,5 +1,16 @@
 import { z } from "zod"
 
+/** Saved address (profile + addresses page) */
+export const addressFormSchema = z.object({
+  label: z.string().trim().max(50).optional(),
+  city: z.string().trim().min(1, "Il seciniz.").max(80),
+  district: z.string().trim().min(1, "Ilce seciniz.").max(80),
+  postalCode: z.string().trim().min(3, "Posta kodu gecersiz.").max(10),
+  openAddress: z.string().trim().min(5, "Acik adres en az 5 karakter.").max(500),
+  country: z.string().trim().min(1).max(80).default("Türkiye"),
+  isDefault: z.boolean().optional(),
+})
+
 export const profileUpdateSchema = z.object({
   firstName: z
     .string({ required_error: "Ad zorunludur." })
@@ -15,21 +26,26 @@ export const profileUpdateSchema = z.object({
     .string({ required_error: "Telefon numarasi zorunludur." })
     .trim()
     .regex(/^\+?[0-9\s()-]{10,20}$/, "Gecerli bir telefon numarasi giriniz."),
-  street: z
-    .string({ required_error: "Sokak bilgisi zorunludur." })
-    .trim()
-    .min(1, "Sokak bilgisi zorunludur.")
-    .max(120, "Sokak bilgisi en fazla 120 karakter olabilir."),
   city: z
-    .string({ required_error: "Sehir bilgisi zorunludur." })
+    .string({ required_error: "Il zorunludur." })
     .trim()
-    .min(1, "Sehir bilgisi zorunludur.")
-    .max(80, "Sehir bilgisi en fazla 80 karakter olabilir."),
-  zip: z
+    .min(1, "Il zorunludur.")
+    .max(80, "Il en fazla 80 karakter olabilir."),
+  district: z
+    .string({ required_error: "Ilce zorunludur." })
+    .trim()
+    .min(1, "Ilce zorunludur.")
+    .max(80, "Ilce en fazla 80 karakter olabilir."),
+  postalCode: z
     .string({ required_error: "Posta kodu zorunludur." })
     .trim()
-    .min(1, "Posta kodu zorunludur.")
-    .max(20, "Posta kodu en fazla 20 karakter olabilir."),
+    .min(3, "Posta kodu en az 3 karakter olmalidir.")
+    .max(10, "Posta kodu en fazla 10 karakter olabilir."),
+  openAddress: z
+    .string({ required_error: "Acik adres zorunludur." })
+    .trim()
+    .min(5, "Acik adres en az 5 karakter olmalidir.")
+    .max(500, "Acik adres cok uzun."),
 })
 
 export const passwordUpdateSchema = z

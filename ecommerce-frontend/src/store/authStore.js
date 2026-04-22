@@ -102,8 +102,11 @@ export const useAuthStore = create((set, get) => ({
       const user = response?.data?.data ?? null
       set({ user, isAuthenticated: Boolean(user) })
       return user
-    } catch {
-      get().forceLogout()
+    } catch (error) {
+      const status = error?.response?.status
+      if (status === 401 || status === 403) {
+        get().forceLogout()
+      }
       return null
     } finally {
       set({ isLoading: false })

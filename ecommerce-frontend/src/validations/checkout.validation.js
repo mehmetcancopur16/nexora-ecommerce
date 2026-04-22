@@ -8,18 +8,18 @@ export const checkoutSchema = z.object({
     .min(2, "Soyad en az 2 karakter olmalidir."),
   email: z.string({ required_error: "E-posta zorunludur." }).trim().email("Gecerli bir e-posta giriniz."),
   phone: z.string({ required_error: "Telefon zorunludur." }).trim().min(10, "Telefon numarasi gecersiz."),
-  street: z
-    .string({ required_error: "Adres bilgisi zorunludur." })
-    .trim()
-    .min(5, "Adres en az 5 karakter olmalidir."),
-  city: z
-    .string({ required_error: "Sehir bilgisi zorunludur." })
-    .trim()
-    .min(2, "Sehir bilgisi en az 2 karakter olmalidir."),
-  zip: z
+  city: z.string({ required_error: "Il zorunludur." }).trim().min(1, "Il zorunludur.").max(80),
+  district: z.string({ required_error: "Ilce zorunludur." }).trim().min(1, "Ilce zorunludur.").max(80),
+  postalCode: z
     .string({ required_error: "Posta kodu zorunludur." })
     .trim()
-    .min(3, "Posta kodu en az 3 karakter olmalidir."),
+    .min(3, "Posta kodu en az 3 karakter olmalidir.")
+    .max(10),
+  openAddress: z
+    .string({ required_error: "Acik adres zorunludur." })
+    .trim()
+    .min(5, "Acik adres en az 5 karakter olmalidir.")
+    .max(500),
   country: z.string({ required_error: "Ulke zorunludur." }).trim().min(2, "Ulke bilgisi gecersiz."),
   paymentMethod: z.enum(["mock_card", "bank_transfer", "cash_on_delivery"]),
   cardHolderName: z.string().trim().optional(),

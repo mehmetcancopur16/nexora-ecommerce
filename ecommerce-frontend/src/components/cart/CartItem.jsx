@@ -2,7 +2,7 @@ import { motion as Motion } from "framer-motion"
 import { AlertTriangle, Loader2, Trash2 } from "lucide-react"
 import { Link } from "react-router"
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api").replace(/\/api$/, "")
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api").replace(/\/api$/, "")
 
 const getImageSource = (imagePath) => {
   if (!imagePath) {
