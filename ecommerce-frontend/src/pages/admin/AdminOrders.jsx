@@ -44,13 +44,14 @@ function AdminOrders() {
               <th className="px-4 py-3">Siparis ID</th>
               <th className="px-4 py-3">Kullanici</th>
               <th className="px-4 py-3">Toplam</th>
+              <th className="px-4 py-3">Odeme</th>
               <th className="px-4 py-3">Durum</th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
               <tr>
-                <td className="px-4 py-4 text-slate-500" colSpan={4}>
+                <td className="px-4 py-4 text-slate-500" colSpan={5}>
                   Yukleniyor...
                 </td>
               </tr>
@@ -60,6 +61,7 @@ function AdminOrders() {
                   <td className="px-4 py-3 font-medium text-slate-700">{order._id}</td>
                   <td className="px-4 py-3 text-slate-700">{order?.user?.email || "-"}</td>
                   <td className="px-4 py-3 text-slate-700">{Number(order.totalAmount || 0).toFixed(2)} TL</td>
+                  <td className="px-4 py-3 text-slate-700">{order.paymentStatus || "pending_payment"}</td>
                   <td className="px-4 py-3">
                     <select
                       value={order.status}

@@ -1,10 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Eye, EyeOff, ShieldCheck } from "lucide-react"
+import { Eye, EyeOff, Phone, ShieldCheck } from "lucide-react"
 import { useState } from "react"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { Link, useNavigate } from "react-router"
 import { toast } from "sonner"
 import AuthPageLayout from "../components/auth/AuthPageLayout"
+import CountryDialSelect from "../components/auth/CountryDialSelect"
+import { DEFAULT_DIAL } from "../data/countryDialCodes"
 import { registerSchema } from "../validations/auth.validation"
 import { useAuthStore } from "../store/authStore"
 
@@ -18,6 +20,7 @@ function Register() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(registerSchema),
@@ -26,7 +29,8 @@ function Register() {
       firstName: "",
       lastName: "",
       email: "",
-      phone: "",
+      phoneDial: DEFAULT_DIAL,
+      phoneLocal: "",
       password: "",
       confirmPassword: "",
       privacyConsent: false,
@@ -46,7 +50,8 @@ function Register() {
   const firstNameId = "register-first-name"
   const lastNameId = "register-last-name"
   const emailId = "register-email"
-  const phoneId = "register-phone"
+  const phoneDialId = "register-phone-dial"
+  const phoneLocalId = "register-phone-local"
   const passwordId = "register-password"
   const confirmPasswordId = "register-confirm-password"
   const consentId = "register-privacy-consent"
@@ -57,9 +62,9 @@ function Register() {
       subtitle="Birkaç bilgiyle üye olun; sipariş ve favorileriniz hesabınıza bağlansın."
       breadcrumbLabel="Kayıt"
     >
-      <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <div className="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4">
-          <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-700">
+      <form className="space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
+        <div className="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50/90 to-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-800">
             <ShieldCheck className="size-4 text-emerald-600" aria-hidden />
             Hesap bilgileri
           </div>
@@ -75,7 +80,7 @@ function Register() {
                 aria-invalid={errors.firstName ? "true" : "false"}
                 aria-describedby={errors.firstName ? `${firstNameId}-error` : undefined}
                 placeholder="Adınız"
-                className={`w-full rounded-xl border bg-white/95 px-4 py-2.5 text-sm outline-none transition ${
+                className={`w-full rounded-xl border bg-white/95 px-4 py-3 text-sm outline-none transition ${
                   errors.firstName
                     ? "border-rose-400 ring-2 ring-rose-100"
                     : "border-slate-200 focus:border-nexora-primary focus:ring-2 focus:ring-sky-100"
@@ -100,7 +105,7 @@ function Register() {
                 aria-invalid={errors.lastName ? "true" : "false"}
                 aria-describedby={errors.lastName ? `${lastNameId}-error` : undefined}
                 placeholder="Soyadınız"
-                className={`w-full rounded-xl border bg-white/95 px-4 py-2.5 text-sm outline-none transition ${
+                className={`w-full rounded-xl border bg-white/95 px-4 py-3 text-sm outline-none transition ${
                   errors.lastName
                     ? "border-rose-400 ring-2 ring-rose-100"
                     : "border-slate-200 focus:border-nexora-primary focus:ring-2 focus:ring-sky-100"
@@ -125,9 +130,9 @@ function Register() {
             type="email"
             autoComplete="email"
             aria-invalid={errors.email ? "true" : "false"}
-            aria-describedby={errors.email ? `${emailId}-error` : undefined}
+            aria-describedby={errors.email ? `${emailId}-error` : `${emailId}-hint`}
             placeholder="ornek@mail.com"
-            className={`w-full rounded-xl border bg-white/95 px-4 py-2.5 text-sm outline-none transition ${
+            className={`w-full rounded-xl border bg-white/95 px-4 py-3 text-sm outline-none transition ${
               errors.email
                 ? "border-rose-400 ring-2 ring-rose-100"
                 : "border-slate-200 focus:border-nexora-primary focus:ring-2 focus:ring-sky-100"
@@ -138,34 +143,81 @@ function Register() {
             <p id={`${emailId}-error`} className="mt-1.5 text-xs text-rose-600" role="alert">
               {errors.email.message}
             </p>
-          ) : null}
+          ) : (
+            <p id={`${emailId}-hint`} className="mt-1.5 text-xs text-slate-500">
+              Giriş ve bildirimler için kullanılacaktır.
+            </p>
+          )}
         </div>
 
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700" htmlFor={phoneId}>
+        <div className="rounded-2xl border border-sky-100/90 bg-gradient-to-br from-sky-50/80 via-white to-rose-50/50 p-5 shadow-sm">
+          <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-800">
+            <Phone className="size-4 text-nexora-primary" aria-hidden />
             Telefon numarası
-          </label>
-          <input
-            id={phoneId}
-            type="tel"
-            autoComplete="tel"
-            aria-invalid={errors.phone ? "true" : "false"}
-            aria-describedby={errors.phone ? `${phoneId}-error` : undefined}
-            placeholder="+90 5xx xxx xx xx"
-            className={`w-full rounded-xl border bg-white/95 px-4 py-2.5 text-sm outline-none transition ${
-              errors.phone
-                ? "border-rose-400 ring-2 ring-rose-100"
-                : "border-slate-200 focus:border-nexora-primary focus:ring-2 focus:ring-sky-100"
-            }`}
-            {...register("phone")}
-          />
-          {errors.phone ? (
-            <p id={`${phoneId}-error`} className="mt-1.5 text-xs text-rose-600" role="alert">
-              {errors.phone.message}
-            </p>
-          ) : (
-            <p className="mt-1.5 text-xs text-slate-500">Sipariş bildirimleri için kullanılacaktır.</p>
-          )}
+          </div>
+          <p className="mb-4 text-xs leading-relaxed text-slate-600">
+            Ülke kodunu seçin ve numaranızı yazın. Sipariş ve güvenlik bildirimleri bu numaraya gönderilebilir.
+          </p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
+            <div className="flex shrink-0 flex-col sm:w-auto">
+              <label htmlFor={phoneDialId} className="mb-1.5 block text-xs font-medium text-slate-600">
+                Ülke kodu
+              </label>
+              <Controller
+                name="phoneDial"
+                control={control}
+                render={({ field }) => (
+                  <CountryDialSelect
+                    id={phoneDialId}
+                    value={field.value || DEFAULT_DIAL}
+                    onChange={field.onChange}
+                    hasError={Boolean(errors.phoneDial)}
+                    ariaDescribedby={errors.phoneDial ? `${phoneDialId}-error` : `${phoneDialId}-hint`}
+                  />
+                )}
+              />
+              {errors.phoneDial ? (
+                <p id={`${phoneDialId}-error`} className="mt-1 text-xs text-rose-600" role="alert">
+                  {errors.phoneDial.message}
+                </p>
+              ) : (
+                <p id={`${phoneDialId}-hint`} className="mt-1 text-[11px] text-slate-500">
+                  Alan kodu
+                </p>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <label htmlFor={phoneLocalId} className="mb-1.5 block text-xs font-medium text-slate-600">
+                Hat numarası
+              </label>
+              <input
+                id={phoneLocalId}
+                type="tel"
+                inputMode="numeric"
+                autoComplete="tel-national"
+                placeholder="5xx xxx xx xx"
+                aria-invalid={errors.phoneLocal ? "true" : "false"}
+                aria-describedby={
+                  errors.phoneLocal ? `${phoneLocalId}-error` : `${phoneLocalId}-hint`
+                }
+                className={`w-full rounded-xl border bg-white/95 px-4 py-3 text-sm outline-none transition ${
+                  errors.phoneLocal
+                    ? "border-rose-400 ring-2 ring-rose-100"
+                    : "border-slate-200 focus:border-nexora-primary focus:ring-2 focus:ring-sky-100"
+                }`}
+                {...register("phoneLocal")}
+              />
+              {errors.phoneLocal ? (
+                <p id={`${phoneLocalId}-error`} className="mt-1.5 text-xs text-rose-600" role="alert">
+                  {errors.phoneLocal.message}
+                </p>
+              ) : (
+                <p id={`${phoneLocalId}-hint`} className="mt-1.5 text-xs text-slate-500">
+                  Başında 0 olmadan yazın (ör. 5xx xxx xx xx).
+                </p>
+              )}
+            </div>
+          </div>
         </div>
 
         <div>
@@ -178,9 +230,9 @@ function Register() {
               type={showPassword ? "text" : "password"}
               autoComplete="new-password"
               aria-invalid={errors.password ? "true" : "false"}
-              aria-describedby={errors.password ? `${passwordId}-error` : undefined}
+              aria-describedby={errors.password ? `${passwordId}-error` : `${passwordId}-hint`}
               placeholder="En az 8 karakter"
-              className={`w-full rounded-xl border bg-white/95 py-2.5 pl-4 pr-12 text-sm outline-none transition ${
+              className={`w-full rounded-xl border bg-white/95 py-3 pl-4 pr-12 text-sm outline-none transition ${
                 errors.password
                   ? "border-rose-400 ring-2 ring-rose-100"
                   : "border-slate-200 focus:border-nexora-primary focus:ring-2 focus:ring-sky-100"
@@ -201,8 +253,8 @@ function Register() {
               {errors.password.message}
             </p>
           ) : (
-            <p className="mt-1.5 text-xs text-slate-500">
-              En az 8 karakter kullanın, güvenliğiniz için güçlü bir şifre seçin.
+            <p id={`${passwordId}-hint`} className="mt-1.5 text-xs text-slate-500">
+              En az 8 karakter kullanın; güçlü bir şifre seçin.
             </p>
           )}
         </div>
@@ -219,7 +271,7 @@ function Register() {
               aria-invalid={errors.confirmPassword ? "true" : "false"}
               aria-describedby={errors.confirmPassword ? `${confirmPasswordId}-error` : undefined}
               placeholder="Şifrenizi tekrar girin"
-              className={`w-full rounded-xl border bg-white/95 py-2.5 pl-4 pr-12 text-sm outline-none transition ${
+              className={`w-full rounded-xl border bg-white/95 py-3 pl-4 pr-12 text-sm outline-none transition ${
                 errors.confirmPassword
                   ? "border-rose-400 ring-2 ring-rose-100"
                   : "border-slate-200 focus:border-nexora-primary focus:ring-2 focus:ring-sky-100"
@@ -246,7 +298,7 @@ function Register() {
           ) : null}
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+        <div className="rounded-xl border border-slate-200 bg-white px-4 py-4 shadow-sm">
           <label className="flex cursor-pointer items-start gap-3" htmlFor={consentId}>
             <input
               id={consentId}
@@ -254,11 +306,11 @@ function Register() {
               className="mt-0.5 size-4 rounded border-slate-300 text-nexora-primary focus:ring-sky-300"
               aria-invalid={errors.privacyConsent ? "true" : "false"}
               aria-describedby={errors.privacyConsent ? `${consentId}-error` : undefined}
-              {...register("privacyConsent")}
+              {...register("privacyConsent", { valueAsBoolean: true })}
             />
             <span className="text-sm leading-5 text-slate-700">
-              Gizlilik politikası ve kullanım koşullarını okudum, kabul ediyorum. Kişisel verilerimin
-              hesap oluşturma ve sipariş süreçleri için işlenmesine onay veriyorum.{" "}
+              Gizlilik politikası ve kullanım koşullarını okudum, kabul ediyorum. Kişisel verilerimin hesap
+              oluşturma ve sipariş süreçleri için işlenmesine onay veriyorum.{" "}
               <Link to="/gizlilik" className="font-semibold text-nexora-accent hover:underline">
                 Gizlilik Politikası
               </Link>{" "}
@@ -279,7 +331,7 @@ function Register() {
         <button
           type="submit"
           disabled={isLoading}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-nexora-primary px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-70"
+          className="group flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-nexora-primary to-sky-600 px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-sky-900/15 transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {isLoading ? (
             <span className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
@@ -288,9 +340,12 @@ function Register() {
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-slate-600">
+      <p className="mt-8 text-center text-sm text-slate-600">
         Zaten hesabınız var mı?{" "}
-        <Link className="font-semibold text-nexora-accent hover:underline" to="/login">
+        <Link
+          className="font-semibold text-nexora-accent underline-offset-4 transition hover:underline"
+          to="/login"
+        >
           Giriş yapın
         </Link>
       </p>

@@ -36,16 +36,24 @@ exports.register = asyncHandler(async (req, res) => {
 });
 
 exports.login = asyncHandler(async (req, res) => {
-  const { identifier, password } = req.body;
+  const { identifier, password, loginType } = req.body;
   const normalizedIdentifier = identifier.trim();
-  const isEmailIdentifier = emailRegex.test(normalizedIdentifier);
-  const query = isEmailIdentifier
-    ? { email: normalizedIdentifier.toLowerCase() }
-    : { phone: normalizePhone(normalizedIdentifier) };
+
+  let query;
+  if (loginType === "email") {
+    query = { email: normalizedIdentifier.toLowerCase() };
+  } else if (loginType === "phone") {
+    query = { phone: normalizePhone(normalizedIdentifier) };
+  } else {
+    const isEmailIdentifier = emailRegex.test(normalizedIdentifier);
+    query = isEmailIdentifier
+      ? { email: normalizedIdentifier.toLowerCase() }
+      : { phone: normalizePhone(normalizedIdentifier) };
+  }
 
   const user = await User.findOne(query).select("+password");
   if (!user) {
-    throw new ApiError(401, "E-posta veya şifre hatalı", true);
+    throw new ApiError(401, "Giriş bilgileri hatalı", true);
   }
 
   if (!user.isActive) {
@@ -54,7 +62,7 @@ exports.login = asyncHandler(async (req, res) => {
 
   const match = await user.matchPassword(password);
   if (!match) {
-    throw new ApiError(401, "E-posta veya şifre hatalı", true);
+    throw new ApiError(401, "Giriş bilgileri hatalı", true);
   }
 
   const token = signUserToken(user);

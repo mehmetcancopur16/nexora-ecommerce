@@ -10,6 +10,11 @@ const statusStyles = {
   delivered: "bg-emerald-100 text-emerald-700",
   cancelled: "bg-rose-100 text-rose-700",
 }
+const paymentStatusStyles = {
+  pending_payment: "bg-amber-100 text-amber-700",
+  paid: "bg-emerald-100 text-emerald-700",
+  failed: "bg-rose-100 text-rose-700",
+}
 
 const getImageSource = (imagePath) => {
   if (!imagePath) {
@@ -99,6 +104,13 @@ function OrderHistory() {
                 }`}
               >
                 {order.status}
+              </span>
+              <span
+                className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                  paymentStatusStyles[order.paymentStatus] || "bg-slate-100 text-slate-700"
+                }`}
+              >
+                odeme: {order.paymentStatus || "pending_payment"}
               </span>
             </button>
 

@@ -8,6 +8,7 @@ export const useCartStore = create((set) => ({
   cart: null,
   isLoading: false,
   error: null,
+  itemLoadingMap: {},
 
   fetchCart: async () => {
     set({ isLoading: true, error: null })
@@ -25,7 +26,10 @@ export const useCartStore = create((set) => ({
   },
 
   addItem: async ({ productId, quantity = 1 }) => {
-    set({ isLoading: true, error: null })
+    set((state) => ({
+      error: null,
+      itemLoadingMap: { ...state.itemLoadingMap, [productId]: true },
+    }))
     try {
       const response = await axiosInstance.post("/cart/items", { productId, quantity })
       set({ cart: response?.data?.data || { items: [] } })
@@ -35,12 +39,17 @@ export const useCartStore = create((set) => ({
       set({ error: message })
       throw new Error(message)
     } finally {
-      set({ isLoading: false })
+      set((state) => ({
+        itemLoadingMap: { ...state.itemLoadingMap, [productId]: false },
+      }))
     }
   },
 
   updateQuantity: async ({ productId, quantity }) => {
-    set({ isLoading: true, error: null })
+    set((state) => ({
+      error: null,
+      itemLoadingMap: { ...state.itemLoadingMap, [productId]: true },
+    }))
     try {
       const response = await axiosInstance.patch(`/cart/items/${productId}`, { quantity })
       set({ cart: response?.data?.data || { items: [] } })
@@ -50,12 +59,17 @@ export const useCartStore = create((set) => ({
       set({ error: message })
       throw new Error(message)
     } finally {
-      set({ isLoading: false })
+      set((state) => ({
+        itemLoadingMap: { ...state.itemLoadingMap, [productId]: false },
+      }))
     }
   },
 
   removeItem: async (productId) => {
-    set({ isLoading: true, error: null })
+    set((state) => ({
+      error: null,
+      itemLoadingMap: { ...state.itemLoadingMap, [productId]: true },
+    }))
     try {
       const response = await axiosInstance.delete(`/cart/items/${productId}`)
       set({ cart: response?.data?.data || { items: [] } })
@@ -65,7 +79,9 @@ export const useCartStore = create((set) => ({
       set({ error: message })
       throw new Error(message)
     } finally {
-      set({ isLoading: false })
+      set((state) => ({
+        itemLoadingMap: { ...state.itemLoadingMap, [productId]: false },
+      }))
     }
   },
 

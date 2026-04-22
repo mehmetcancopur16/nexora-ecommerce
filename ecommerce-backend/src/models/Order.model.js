@@ -18,6 +18,17 @@ const shippingAddressSchema = new mongoose.Schema(
     street: { type: String, required: true, trim: true },
     city: { type: String, required: true, trim: true },
     zip: { type: String, required: true, trim: true },
+    country: { type: String, required: true, trim: true },
+  },
+  { _id: false }
+);
+
+const customerSchema = new mongoose.Schema(
+  {
+    firstName: { type: String, required: true, trim: true },
+    lastName: { type: String, required: true, trim: true },
+    email: { type: String, required: true, trim: true, lowercase: true },
+    phone: { type: String, required: true, trim: true },
   },
   { _id: false }
 );
@@ -37,7 +48,23 @@ const orderSchema = new mongoose.Schema(
       default: "pending",
       required: true,
     },
+    paymentStatus: {
+      type: String,
+      enum: ["pending_payment", "paid", "failed"],
+      default: "pending_payment",
+      required: true,
+    },
+    paymentMethod: {
+      type: String,
+      enum: ["mock_card", "bank_transfer", "cash_on_delivery"],
+      default: "mock_card",
+      required: true,
+    },
+    transactionRef: { type: String, trim: true, default: null },
+    paidAt: { type: Date, default: null },
+    orderNumber: { type: String, required: true, unique: true, index: true },
     shippingAddress: { type: shippingAddressSchema, required: true },
+    customer: { type: customerSchema, required: true },
   },
   { timestamps: true }
 );

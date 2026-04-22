@@ -30,23 +30,47 @@ const authLimiter = rateLimit({
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name, email, password]
+ *             required:
+ *               - firstName
+ *               - lastName
+ *               - email
+ *               - phone
+ *               - password
+ *               - confirmPassword
+ *               - privacyConsent
  *             properties:
- *               name:
+ *               firstName:
  *                 type: string
+ *                 minLength: 2
+ *                 maxLength: 60
+ *               lastName:
+ *                 type: string
+ *                 minLength: 2
+ *                 maxLength: 60
  *               email:
  *                 type: string
  *                 format: email
+ *                 maxLength: 320
+ *               phone:
+ *                 type: string
+ *                 description: Uluslararası format (ör. +905551234567)
  *               password:
  *                 type: string
  *                 minLength: 8
+ *                 maxLength: 128
+ *               confirmPassword:
+ *                 type: string
+ *                 minLength: 8
+ *               privacyConsent:
+ *                 type: boolean
+ *                 enum: [true]
  *     responses:
  *       201:
  *         description: Kayıt başarılı, JWT döner
  *       400:
  *         description: Geçersiz veri
  *       409:
- *         description: E-posta kullanımda
+ *         description: E-posta veya telefon kullanımda
  */
 router.post("/register", authLimiter, validateBody(registerBodySchema), authController.register);
 
@@ -63,16 +87,21 @@ router.post("/register", authLimiter, validateBody(registerBodySchema), authCont
  *         application/json:
  *           schema:
  *             type: object
- *             required: [email, password]
+ *             required: [identifier, password]
  *             properties:
- *               email:
+ *               loginType:
  *                 type: string
- *                 format: email
+ *                 enum: [email, phone]
+ *                 description: Opsiyonel; belirtilmezse identifier e-posta mı telefon mu otomatik algılanır
+ *               identifier:
+ *                 type: string
+ *                 description: E-posta veya telefon (ör. +905551234567)
  *               password:
  *                 type: string
+ *                 maxLength: 128
  *     responses:
  *       200:
- *         description: Başarılı
+ *         description: Başarılı, JWT döner
  *       401:
  *         description: Kimlik doğrulama başarısız
  */

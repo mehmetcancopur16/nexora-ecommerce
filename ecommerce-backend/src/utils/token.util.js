@@ -1,7 +1,9 @@
 const jwt = require("jsonwebtoken");
 
 function signUserToken(user) {
-  const secret = process.env.JWT_SECRET;
+  const secret =
+    process.env.JWT_SECRET ||
+    (process.env.NODE_ENV !== "production" ? "dev_jwt_secret_change_me" : undefined);
   if (!secret) {
     throw new Error("JWT_SECRET tanımlı değil");
   }

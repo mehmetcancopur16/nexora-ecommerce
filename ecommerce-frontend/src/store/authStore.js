@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import axiosInstance, { registerUnauthorizedHandler } from "../api/axiosInstance"
+import { composeInternationalPhone } from "../utils/phone"
 
 const TOKEN_KEY = "nexora_token"
 const LOGIN_PATH = import.meta.env.VITE_AUTH_LOGIN_PATH || "/auth/login"
@@ -39,7 +40,15 @@ export const useAuthStore = create((set, get) => ({
   login: async (payload) => {
     set({ isLoading: true })
     try {
-      const { rememberMe = false, ...loginPayload } = payload
+      const { rememberMe = false, loginType, email, phoneDial, phoneLocal, password } = payload
+      const loginPayload =
+        loginType === "email"
+          ? { loginType: "email", identifier: String(email ?? "").trim(), password }
+          : {
+              loginType: "phone",
+              identifier: composeInternationalPhone(phoneDial, phoneLocal),
+              password,
+            }
       const response = await axiosInstance.post(LOGIN_PATH, loginPayload)
       const token = response?.data?.token || response?.data?.data?.token
       if (token) {
@@ -57,7 +66,12 @@ export const useAuthStore = create((set, get) => ({
   register: async (payload) => {
     set({ isLoading: true })
     try {
-      const response = await axiosInstance.post(REGISTER_PATH, payload)
+      const { phoneDial, phoneLocal, ...rest } = payload
+      const phone = composeInternationalPhone(phoneDial, phoneLocal)
+      const response = await axiosInstance.post(REGISTER_PATH, {
+        ...rest,
+        phone,
+      })
       const token = response?.data?.token || response?.data?.data?.token
       if (token) {
         setToken(token, true)

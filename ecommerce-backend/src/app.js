@@ -5,7 +5,6 @@ const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const mongoSanitize = require("express-mongo-sanitize");
-const xssClean = require("xss-clean");
 const hpp = require("hpp");
 const rateLimit = require("express-rate-limit");
 const swaggerUi = require("swagger-ui-express");
@@ -40,8 +39,14 @@ const globalLimiter = rateLimit({
 app.use(helmet());
 app.use(cors());
 app.use(morgan("dev"));
-app.use(mongoSanitize());
-app.use(xssClean());
+app.use((req, _res, next) => {
+  ["body", "params", "headers", "query"].forEach((key) => {
+    if (req[key]) {
+      mongoSanitize.sanitize(req[key]);
+    }
+  });
+  next();
+});
 app.use(hpp());
 app.use(express.json());
 app.use("/api", globalLimiter);

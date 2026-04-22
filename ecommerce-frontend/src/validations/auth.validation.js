@@ -1,4 +1,9 @@
 import { z } from "zod"
+import { composeInternationalPhone, digitsOnly } from "../utils/phone"
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+/** Aligned with backend register/login phone pattern */
+const composedPhoneRegex = /^\+?[0-9\s()-]{10,20}$/
 
 const emailField = z
   .string({ required_error: "E-posta adresi zorunludur." })
@@ -24,33 +29,70 @@ const lastNameField = z
   .min(2, "Soyad en az 2 karakter olmalıdır.")
   .max(60)
 
-const phoneField = z
-  .string({ required_error: "Telefon numarası zorunludur." })
-  .trim()
-  .regex(/^\+?[0-9\s()-]{10,20}$/, "Geçerli bir telefon numarası giriniz.")
-
-const identifierField = z
-  .string({ required_error: "E-posta veya telefon zorunludur." })
-  .trim()
-  .min(1, "E-posta veya telefon zorunludur.")
-  .refine(
-    (value) =>
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || /^\+?[0-9\s()-]{10,20}$/.test(value),
-    "Geçerli bir e-posta veya telefon giriniz."
-  )
-
-export const loginSchema = z.object({
-  identifier: identifierField,
-  password: passwordField,
-  rememberMe: z.boolean().default(false),
-})
+export const loginSchema = z
+  .object({
+    loginType: z.enum(["email", "phone"]),
+    email: z.string().optional(),
+    phoneDial: z.string().optional(),
+    phoneLocal: z.string().optional(),
+    password: passwordField,
+    rememberMe: z.boolean().default(false),
+  })
+  .superRefine((data, ctx) => {
+    if (data.loginType === "email") {
+      const parsed = emailField.safeParse(data.email ?? "")
+      if (!parsed.success) {
+        parsed.error.issues.forEach((issue) =>
+          ctx.addIssue({ ...issue, path: ["email"] })
+        )
+      }
+      return
+    }
+    const dial = (data.phoneDial ?? "").trim()
+    const localRaw = (data.phoneLocal ?? "").trim()
+    if (!dial) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Ülke kodu seçin.",
+        path: ["phoneDial"],
+      })
+    }
+    if (!localRaw) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Telefon numarası zorunludur.",
+        path: ["phoneLocal"],
+      })
+      return
+    }
+    const localDigits = digitsOnly(localRaw)
+    if (localDigits.length < 8) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Telefon numarası en az 8 rakam içermelidir.",
+        path: ["phoneLocal"],
+      })
+    }
+    const composed = composeInternationalPhone(dial, localRaw)
+    if (!composedPhoneRegex.test(composed)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Geçerli bir telefon numarası giriniz.",
+        path: ["phoneLocal"],
+      })
+    }
+  })
 
 export const registerSchema = z
   .object({
     firstName: firstNameField,
     lastName: lastNameField,
     email: emailField,
-    phone: phoneField,
+    phoneDial: z.string().trim().min(1, "Ülke kodu seçin."),
+    phoneLocal: z
+      .string({ required_error: "Telefon numarası zorunludur." })
+      .trim()
+      .min(1, "Telefon numarası zorunludur."),
     password: passwordField,
     confirmPassword: z
       .string({ required_error: "Şifre tekrarı zorunludur." })
@@ -61,6 +103,24 @@ export const registerSchema = z
         message: "Devam etmek için gizlilik ve kullanım koşullarını kabul etmelisiniz.",
       }),
     }),
+  })
+  .superRefine((data, ctx) => {
+    const localDigits = digitsOnly(data.phoneLocal)
+    if (localDigits.length < 8) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Telefon numarası en az 8 rakam içermelidir.",
+        path: ["phoneLocal"],
+      })
+    }
+    const composed = composeInternationalPhone(data.phoneDial, data.phoneLocal)
+    if (!composedPhoneRegex.test(composed)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Geçerli bir telefon numarası giriniz.",
+        path: ["phoneLocal"],
+      })
+    }
   })
   .refine((values) => values.password === values.confirmPassword, {
     path: ["confirmPassword"],

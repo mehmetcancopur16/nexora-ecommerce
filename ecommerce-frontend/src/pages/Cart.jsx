@@ -1,5 +1,5 @@
-import { motion as Motion } from "framer-motion"
-import { ArrowRight, Lock, ShoppingBag, Sparkles, Truck } from "lucide-react"
+import { AnimatePresence, motion as Motion } from "framer-motion"
+import { ArrowRight, Lock, Percent, ShieldCheck, ShoppingBag, Sparkles, Truck } from "lucide-react"
 import { useEffect, useMemo } from "react"
 import { Link, useNavigate } from "react-router"
 import { toast } from "sonner"
@@ -10,6 +10,8 @@ import { useCartStore } from "../store/cartStore"
 import { selectCartSubtotal } from "../store/cartSelectors"
 
 const SHIPPING_FEE = 0
+const TAX_RATE = 0.18
+const DISCOUNT_RATE = 0.05
 
 function CartItemSkeleton() {
   return (
@@ -35,6 +37,7 @@ function Cart() {
   const cart = useCartStore((state) => state.cart)
   const isLoading = useCartStore((state) => state.isLoading)
   const error = useCartStore((state) => state.error)
+  const itemLoadingMap = useCartStore((state) => state.itemLoadingMap)
   const fetchCart = useCartStore((state) => state.fetchCart)
   const updateQuantity = useCartStore((state) => state.updateQuantity)
   const removeItem = useCartStore((state) => state.removeItem)
@@ -42,6 +45,9 @@ function Cart() {
 
   const items = useMemo(() => cart?.items || [], [cart?.items])
   const grandTotal = totalAmount + SHIPPING_FEE
+  const estimatedTax = totalAmount * TAX_RATE
+  const campaignDiscount = totalAmount > 1500 ? totalAmount * DISCOUNT_RATE : 0
+  const payableTotal = Math.max(0, grandTotal + estimatedTax - campaignDiscount)
 
   const hasInactiveProduct = useMemo(
     () => items.some((line) => line?.product && line.product.isActive === false),
@@ -65,6 +71,7 @@ function Cart() {
   }, [isAuthenticated, fetchCart])
 
   const handleQuantityChange = async (productId, quantity) => {
+    if (!Number.isFinite(quantity) || quantity < 1) return
     try {
       await updateQuantity({ productId, quantity })
     } catch (updateError) {
@@ -175,7 +182,7 @@ function Cart() {
           </Link>
         </div>
       ) : (
-        <div className="grid gap-8 lg:grid-cols-[1fr_360px] lg:items-start">
+        <div className="grid gap-8 lg:grid-cols-[1fr_380px] lg:items-start">
           <div className="space-y-4">
             {isLoading ? (
               <>
@@ -184,21 +191,30 @@ function Cart() {
                 <CartItemSkeleton />
               </>
             ) : (
-              items.map((item) => (
-                <CartItem
-                  key={item?.product?._id}
-                  item={item}
-                  disabled={isLoading}
-                  onDecrease={() => handleQuantityChange(item.product._id, Math.max(1, item.quantity - 1))}
-                  onIncrease={() =>
-                    handleQuantityChange(
-                      item.product._id,
-                      Math.min(item.product.stock, item.quantity + 1)
-                    )
-                  }
-                  onRemove={() => handleRemove(item.product._id)}
-                />
-              ))
+              <AnimatePresence initial={false}>
+                {items.map((item) => (
+                  <CartItem
+                    key={item?.product?._id}
+                    item={item}
+                    disabled={isLoading}
+                    isItemLoading={Boolean(itemLoadingMap?.[item?.product?._id])}
+                    onDecrease={() => handleQuantityChange(item.product._id, Math.max(1, item.quantity - 1))}
+                    onIncrease={() =>
+                      handleQuantityChange(
+                        item.product._id,
+                        Math.min(item.product.stock, item.quantity + 1)
+                      )
+                    }
+                    onQuantityInput={(nextQuantity) =>
+                      handleQuantityChange(
+                        item.product._id,
+                        Math.min(item.product.stock, Math.max(1, nextQuantity || 1))
+                      )
+                    }
+                    onRemove={() => handleRemove(item.product._id)}
+                  />
+                ))}
+              </AnimatePresence>
             )}
           </div>
 
@@ -236,13 +252,26 @@ function Cart() {
                 <span className="font-medium text-slate-900">{totalAmount.toFixed(2)} TL</span>
               </div>
               <div className="flex items-center justify-between text-slate-600">
+                <span className="inline-flex items-center gap-1">
+                  <Percent className="size-3.5" aria-hidden />
+                  Kampanya indirimi
+                </span>
+                <span className="font-medium text-emerald-700">-{campaignDiscount.toFixed(2)} TL</span>
+              </div>
+              <div className="flex items-center justify-between text-slate-600">
                 <span>Kargo</span>
                 <span className="font-medium text-slate-900">{SHIPPING_FEE.toFixed(2)} TL</span>
+              </div>
+              <div className="flex items-center justify-between text-slate-600">
+                <span>Tahmini vergi</span>
+                <span className="font-medium text-slate-900">{estimatedTax.toFixed(2)} TL</span>
               </div>
               <div className="my-3 border-t border-slate-200/80" />
               <div className="flex items-center justify-between text-base font-semibold text-slate-900">
                 <span>Genel toplam</span>
-                <span>{grandTotal.toFixed(2)} TL</span>
+                <Motion.span key={payableTotal} initial={{ opacity: 0.6 }} animate={{ opacity: 1 }}>
+                  {payableTotal.toFixed(2)} TL
+                </Motion.span>
               </div>
             </div>
 
@@ -260,6 +289,7 @@ function Cart() {
             ) : null}
 
             <p className="mt-4 text-center text-xs text-slate-500">
+              <ShieldCheck className="mr-1 inline size-3.5 text-emerald-600" aria-hidden />
               Ödeme ve teslimat için{" "}
               <Link className="font-medium text-nexora-primary hover:underline" to="/destek">
                 destek
@@ -269,6 +299,25 @@ function Cart() {
           </aside>
         </div>
       )}
+
+      {items.length ? (
+        <div className="fixed inset-x-0 bottom-3 z-40 px-4 lg:hidden">
+          <div className="mx-auto flex max-w-2xl items-center justify-between rounded-2xl border border-white/70 bg-white/95 px-4 py-3 shadow-2xl backdrop-blur">
+            <div>
+              <p className="text-xs text-slate-500">Ödenecek Tutar</p>
+              <p className="text-base font-bold text-slate-900">{payableTotal.toFixed(2)} TL</p>
+            </div>
+            <button
+              type="button"
+              disabled={!items.length || isLoading || hasInactiveProduct}
+              onClick={() => navigate("/checkout")}
+              className="rounded-xl bg-nexora-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:bg-slate-300"
+            >
+              Ödemeye Geç
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

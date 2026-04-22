@@ -5,6 +5,7 @@ const { requireRoles } = require("../middlewares/role.middleware");
 const { validateBody, validateParams } = require("../middlewares/validate.middleware");
 const {
   createOrderSchema,
+  payMockOrderSchema,
   updateOrderStatusSchema,
   orderIdParamSchema,
 } = require("../validations/order.validation");
@@ -51,6 +52,13 @@ router.use(authMiddleware);
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post("/", validateBody(createOrderSchema), orderController.createOrder);
+router.post("/draft", validateBody(createOrderSchema), orderController.createDraftOrder);
+router.post(
+  "/:id/pay-mock",
+  validateParams(orderIdParamSchema),
+  validateBody(payMockOrderSchema),
+  orderController.payMockOrder
+);
 
 /**
  * @openapi
@@ -71,6 +79,7 @@ router.post("/", validateBody(createOrderSchema), orderController.createOrder);
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get("/my", orderController.getMyOrders);
+router.get("/my/:id", validateParams(orderIdParamSchema), orderController.getMyOrderById);
 
 /**
  * @openapi

@@ -8,6 +8,7 @@ exports.getDashboardStats = asyncHandler(async (_req, res) => {
   const [userCount, orderStats, statusDistribution, lowStockProducts] = await Promise.all([
     User.countDocuments(),
     Order.aggregate([
+      { $match: { paymentStatus: "paid" } },
       {
         $group: {
           _id: null,
