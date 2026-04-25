@@ -15,10 +15,19 @@ function ProductsToolbar({
   sort,
   onSortChange,
   hasSearch,
+  search,
+  startsWith,
+  category,
+  onClearFilter,
   gridMode,
   onGridModeChange,
 }) {
   const visibleSortOptions = SORT_OPTIONS.filter((opt) => !opt.needsSearch || hasSearch)
+  const chips = [
+    search?.trim() ? { key: "search", label: `Arama: ${search}` } : null,
+    startsWith ? { key: "startsWith", label: `Harf: ${startsWith}` } : null,
+    category ? { key: "category", label: "Kategori secili" } : null,
+  ].filter(Boolean)
 
   return (
     <div className="nexora-glass flex flex-col gap-4 rounded-2xl border border-white/60 px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
@@ -35,6 +44,20 @@ function ProductsToolbar({
             </>
           )}
         </p>
+        {!!chips.length && (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {chips.map((chip) => (
+              <button
+                key={chip.key}
+                type="button"
+                onClick={() => onClearFilter(chip.key)}
+                className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 transition hover:bg-sky-100"
+              >
+                {chip.label} ×
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-3">

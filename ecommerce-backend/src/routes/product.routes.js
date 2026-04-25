@@ -51,6 +51,11 @@ const router = express.Router();
  *           type: string
  *         description: Ürün adında full-text arama metni
  *       - in: query
+ *         name: startsWith
+ *         schema:
+ *           type: string
+ *         description: Ürün adında harf/prefix filtreleme (örn. R)
+ *       - in: query
  *         name: sort
  *         schema:
  *           type: string
@@ -87,6 +92,32 @@ router.get(
   validateQuery(listProductsQuerySchema),
   productController.getAllProducts
 );
+/**
+ * @openapi
+ * /api/products/{id}/related:
+ *   get:
+ *     tags: [Products]
+ *     summary: Benzer ürünleri getir
+ *     security: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           pattern: '^[a-fA-F0-9]{24}$'
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 24
+ *           default: 8
+ *     responses:
+ *       200:
+ *         description: Başarılı
+ */
+router.get("/:id/related", productController.getRelatedProducts);
 
 /**
  * @openapi

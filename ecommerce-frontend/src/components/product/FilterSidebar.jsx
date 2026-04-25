@@ -1,6 +1,8 @@
 import { Search } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
+const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")
+
 function FilterSidebar({ categories, filters, onChangeFilters, idPrefix = "catalog" }) {
   const [searchValue, setSearchValue] = useState(filters.search)
   const debounceTimerRef = useRef(null)
@@ -15,7 +17,11 @@ function FilterSidebar({ categories, filters, onChangeFilters, idPrefix = "catal
     setSearchValue(nextValue)
     clearTimeout(debounceTimerRef.current)
     debounceTimerRef.current = setTimeout(() => {
-      onChangeFilters({ search: nextValue })
+      const trimmed = nextValue.trim()
+      onChangeFilters({
+        search: nextValue,
+        startsWith: trimmed.length === 1 ? trimmed.toUpperCase() : "",
+      })
     }, 400)
   }
 
@@ -51,6 +57,34 @@ function FilterSidebar({ categories, filters, onChangeFilters, idPrefix = "catal
               autoComplete="off"
               className="w-full rounded-xl border border-slate-200/90 bg-white/95 py-2.5 pl-3 pr-3 text-sm outline-none ring-sky-100 transition placeholder:text-slate-400 focus:border-nexora-primary focus:ring-2 focus:ring-sky-100"
             />
+          </div>
+        </div>
+
+        <div>
+          <p className="mb-2 text-sm font-medium text-slate-700">Baslangic harfi</p>
+          <div className="grid grid-cols-7 gap-2">
+            {LETTERS.map((letter) => {
+              const active = filters.startsWith === letter
+              return (
+                <button
+                  key={letter}
+                  type="button"
+                  onClick={() =>
+                    onChangeFilters({
+                      startsWith: active ? "" : letter,
+                      search: active ? filters.search : letter,
+                    })
+                  }
+                  className={`rounded-lg border px-2 py-1.5 text-xs font-semibold transition ${
+                    active
+                      ? "border-nexora-primary bg-nexora-primary text-white"
+                      : "border-slate-200 bg-white text-slate-700 hover:border-nexora-primary/40 hover:text-nexora-primary"
+                  }`}
+                >
+                  {letter}
+                </button>
+              )
+            })}
           </div>
         </div>
 
@@ -93,7 +127,7 @@ function FilterSidebar({ categories, filters, onChangeFilters, idPrefix = "catal
           onClick={() => {
             setSearchValue("")
             clearTimeout(debounceTimerRef.current)
-            onChangeFilters({ search: "", category: "", sort: "newest", page: 1 })
+            onChangeFilters({ search: "", startsWith: "", category: "", sort: "newest", page: 1 })
           }}
           className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-nexora-primary/40 hover:bg-sky-50/80 hover:text-nexora-primary"
         >

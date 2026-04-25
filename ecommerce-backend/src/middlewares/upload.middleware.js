@@ -1,9 +1,12 @@
 const path = require("path");
+const fs = require("fs");
 const multer = require("multer");
 const ApiError = require("../utils/apiError");
 
-const uploadDir = path.join(__dirname, "../../public/uploads");
+const uploadDir = path.join(__dirname, "../../public/uploads/products");
 const allowedMimeTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
+
+fs.mkdirSync(uploadDir, { recursive: true });
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {

@@ -1,13 +1,15 @@
+import { useEffect, useState } from "react"
 import { Link } from "react-router"
 import { toast } from "sonner"
 import { useAuthStore } from "../../store/authStore"
 import { useCartStore } from "../../store/cartStore"
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api").replace(/\/api$/, "")
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api").replace(/\/api$/, "")
+const FALLBACK_IMAGE = "https://placehold.co/600x600/e2e8f0/64748b?text=Nexora"
 
 const getImageSource = (imagePath) => {
   if (!imagePath) {
-    return "https://placehold.co/600x600/e2e8f0/64748b?text=Nexora"
+    return FALLBACK_IMAGE
   }
 
   if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
@@ -30,6 +32,11 @@ function ProductCard({ product }) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const addItem = useCartStore((state) => state.addItem)
   const image = getImageSource(product?.images?.[0])
+  const [imageSrc, setImageSrc] = useState(image)
+
+  useEffect(() => {
+    setImageSrc(image)
+  }, [image])
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
@@ -50,8 +57,9 @@ function ProductCard({ product }) {
       <Link className="block" to={`/products/${product?._id}`}>
         <div className="aspect-square overflow-hidden bg-slate-100">
           <img
-            src={image}
+            src={imageSrc}
             alt={product?.name || "Urun gorseli"}
+            onError={() => setImageSrc(FALLBACK_IMAGE)}
             className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
           />
         </div>

@@ -6,6 +6,26 @@ const User = require("../models/User.model");
 const asyncHandler = require("../utils/asyncHandler");
 const ApiError = require("../utils/apiError");
 
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const normalizeProductPayload = (payload = {}) => {
+  const next = { ...payload };
+  if (next.slug) {
+    next.slug = String(next.slug)
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+  if (next.sku) {
+    next.sku = String(next.sku).trim().toUpperCase();
+  }
+  if (Array.isArray(next.tags)) {
+    next.tags = next.tags.map((tag) => String(tag).trim().toLowerCase()).filter(Boolean);
+  }
+  return next;
+};
+
 const isAdminFromRequest = async (req) => {
   const header = req.headers.authorization;
   if (!header || !header.startsWith("Bearer ")) {
@@ -47,7 +67,7 @@ function resolveProductListSort(sortParam, hasTextSearch) {
 }
 
 exports.getAllProducts = asyncHandler(async (req, res) => {
-  const { page, limit, category, search, includeInactive, sort } = req.query;
+  const { page, limit, category, search, startsWith, includeInactive, sort } = req.query;
   const skip = (page - 1) * limit;
   const isAdmin = await isAdminFromRequest(req);
   const canIncludeInactive = isAdmin && includeInactive === true;
@@ -59,7 +79,11 @@ exports.getAllProducts = asyncHandler(async (req, res) => {
   if (category) {
     filter.category = new mongoose.Types.ObjectId(category);
   }
-  const hasTextSearch = Boolean(search && search.length > 0);
+  const hasPrefixFilter = Boolean(startsWith && startsWith.length > 0);
+  if (hasPrefixFilter) {
+    filter.name = { $regex: `^${escapeRegex(startsWith)}`, $options: "i" };
+  }
+  const hasTextSearch = !hasPrefixFilter && Boolean(search && search.length > 0);
   if (hasTextSearch) {
     filter.$text = { $search: search };
   }
@@ -115,12 +139,13 @@ exports.getProductById = asyncHandler(async (req, res) => {
 });
 
 exports.createProduct = asyncHandler(async (req, res) => {
-  const categoryExists = await Category.exists({ _id: req.body.category });
+  const payload = normalizeProductPayload(req.body);
+  const categoryExists = await Category.exists({ _id: payload.category });
   if (!categoryExists) {
     throw new ApiError(400, "Geçersiz kategori", true);
   }
 
-  const product = await Product.create(req.body);
+  const product = await Product.create(payload);
   await product.populate({ path: "category", select: "name description" });
 
   res.status(201).json({ success: true, data: product });
@@ -132,14 +157,15 @@ exports.updateProduct = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Geçersiz ürün kimliği", true);
   }
 
-  if (req.body.category) {
-    const categoryExists = await Category.exists({ _id: req.body.category });
+  const payload = normalizeProductPayload(req.body);
+  if (payload.category) {
+    const categoryExists = await Category.exists({ _id: payload.category });
     if (!categoryExists) {
       throw new ApiError(400, "Geçersiz kategori", true);
     }
   }
 
-  const product = await Product.findByIdAndUpdate(id, req.body, {
+  const product = await Product.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,
   }).populate({ path: "category", select: "name description" });
@@ -184,7 +210,7 @@ exports.uploadProductImages = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Yüklenecek en az bir görsel gerekli", true);
   }
 
-  const imageUrls = req.files.map((file) => `/uploads/${file.filename}`);
+  const imageUrls = req.files.map((file) => `/uploads/products/${file.filename}`);
 
   const product = await Product.findByIdAndUpdate(
     id,
@@ -201,4 +227,52 @@ exports.uploadProductImages = asyncHandler(async (req, res) => {
     message: "Ürün görselleri başarıyla yüklendi",
     data: product,
   });
+});
+
+exports.getRelatedProducts = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const limitRaw = Number(req.query.limit || 8);
+  const limit = Number.isFinite(limitRaw) ? Math.max(1, Math.min(24, limitRaw)) : 8;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new ApiError(400, "Geçersiz ürün kimliği", true);
+  }
+
+  const product = await Product.findOne({ _id: id, isActive: true }).select("category").lean();
+  if (!product) {
+    throw new ApiError(404, "Ürün bulunamadı", true);
+  }
+
+  const baseFilter = {
+    isActive: true,
+    _id: { $ne: new mongoose.Types.ObjectId(id) },
+  };
+
+  let items = [];
+  if (product.category) {
+    items = await Product.find({
+      ...baseFilter,
+      category: product.category,
+    })
+      .sort({ averageRating: -1, createdAt: -1 })
+      .limit(limit)
+      .populate({ path: "category", select: "name description" })
+      .lean();
+  }
+
+  if (items.length < limit) {
+    const missing = limit - items.length;
+    const existingIds = items.map((item) => item._id);
+    const fallback = await Product.find({
+      ...baseFilter,
+      ...(existingIds.length ? { _id: { $nin: [new mongoose.Types.ObjectId(id), ...existingIds] } } : {}),
+    })
+      .sort({ averageRating: -1, createdAt: -1 })
+      .limit(missing)
+      .populate({ path: "category", select: "name description" })
+      .lean();
+    items = [...items, ...fallback];
+  }
+
+  res.json({ success: true, data: items });
 });

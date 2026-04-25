@@ -48,3 +48,13 @@ Hatali cevaplar:
 ```
 
 Detayli schema ve tum parametreler icin Swagger dokumanini kaynak kabul edin.
+
+## Products Notlari
+
+- `GET /api/products` artik `startsWith` parametresini destekler.
+  - Ornek: `GET /api/products?startsWith=R&sort=name_asc`
+  - Bu filtre urun adinda bas harf/eslesme prefix mantigi ile calisir.
+- `GET /api/products/:id/related` endpointi aktif urune gore benzer urunler dondurur.
+- Product modeli PDP (product detail page) ihtiyaclari icin genisletilmistir:
+  - `sku`, `slug`, `brand`, `tags`, `specs`, `variants`, `metadata`, `shippingInfo`, `warrantyInfo`, `returnPolicySnippet`, `seo`
+- Urun gorsel yukleme yolu standartlastirildi: `/uploads/products/*`

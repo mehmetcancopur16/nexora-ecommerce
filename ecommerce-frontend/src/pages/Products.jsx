@@ -37,9 +37,12 @@ function buildPageList(current, total) {
 function Products() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
-  const [gridMode, setGridMode] = useState(() =>
-    typeof window !== "undefined" && window.matchMedia("(min-width: 1280px)").matches ? "compact" : "comfortable"
-  )
+  const [gridMode, setGridMode] = useState(() => {
+    if (typeof window === "undefined") return "comfortable"
+    const saved = window.localStorage.getItem("products_grid_mode")
+    if (saved === "compact" || saved === "comfortable") return saved
+    return window.matchMedia("(min-width: 1280px)").matches ? "compact" : "comfortable"
+  })
 
   const products = useProductStore((state) => state.products)
   const categories = useProductStore((state) => state.categories)
@@ -47,8 +50,10 @@ function Products() {
   const loading = useProductStore((state) => state.loading)
   const error = useProductStore((state) => state.error)
   const fetchCategories = useProductStore((state) => state.fetchCategories)
+  const fetchProducts = useProductStore((state) => state.fetchProducts)
   const setFilters = useProductStore((state) => state.setFilters)
   const hydratedFromUrl = useRef(false)
+  const ensuredInitialFetch = useRef(false)
 
   useEffect(() => {
     fetchCategories()
@@ -56,6 +61,7 @@ function Products() {
 
   useEffect(() => {
     const querySearch = searchParams.get("search") || ""
+    const queryStartsWith = searchParams.get("startsWith") || ""
     const queryCategory = searchParams.get("category") || ""
     const queryPage = Number(searchParams.get("page") || 1)
     const querySortRaw = searchParams.get("sort")
@@ -65,6 +71,7 @@ function Products() {
     const current = useProductStore.getState().filters
     const isSame =
       current.search === querySearch &&
+      current.startsWith === queryStartsWith &&
       current.category === queryCategory &&
       current.page === page &&
       current.sort === querySort
@@ -76,6 +83,7 @@ function Products() {
 
     setFilters({
       search: querySearch,
+      startsWith: queryStartsWith,
       category: queryCategory,
       page,
       sort: querySort,
@@ -85,6 +93,7 @@ function Products() {
   useEffect(() => {
     const nextParams = new URLSearchParams()
     if (filters.search) nextParams.set("search", filters.search)
+    if (filters.startsWith) nextParams.set("startsWith", filters.startsWith)
     if (filters.category) nextParams.set("category", filters.category)
     if (filters.page > 1) nextParams.set("page", String(filters.page))
     const implicitSort = getImplicitSort(filters.search)
@@ -97,7 +106,19 @@ function Products() {
     if (current !== next) {
       setSearchParams(nextParams, { replace: true })
     }
-  }, [filters.search, filters.category, filters.page, filters.sort, searchParams, setSearchParams])
+  }, [filters.search, filters.startsWith, filters.category, filters.page, filters.sort, searchParams, setSearchParams])
+
+  useEffect(() => {
+    if (!hydratedFromUrl.current) return
+    if (!ensuredInitialFetch.current && !loading && products.length === 0 && !error) {
+      ensuredInitialFetch.current = true
+      fetchProducts()
+    }
+  }, [error, fetchProducts, loading, products.length])
+
+  useEffect(() => {
+    window.localStorage.setItem("products_grid_mode", gridMode)
+  }, [gridMode])
 
   useEffect(() => {
     if (!mobileFiltersOpen) return undefined
@@ -197,6 +218,10 @@ function Products() {
             sort={filters.sort}
             onSortChange={handleSortChange}
             hasSearch={hasSearch}
+            search={filters.search}
+            startsWith={filters.startsWith}
+            category={filters.category}
+            onClearFilter={(key) => setFilters({ [key]: "" })}
             gridMode={gridMode}
             onGridModeChange={setGridMode}
           />
@@ -223,11 +248,11 @@ function Products() {
             >
               <p className="text-lg font-semibold text-slate-800">Bu kriterlere uygun ürün bulunamadı</p>
               <p className="mt-2 text-sm text-slate-500">
-                Aramayı veya kategoriyi değiştirin; filtreleri sıfırlayıp yeniden deneyebilirsiniz.
+                Aramayı, harf filtresini veya kategoriyi değiştirin; filtreleri sıfırlayıp yeniden deneyebilirsiniz.
               </p>
               <button
                 type="button"
-                onClick={() => setFilters({ search: "", category: "", sort: "newest", page: 1 })}
+                onClick={() => setFilters({ search: "", startsWith: "", category: "", sort: "newest", page: 1 })}
                 className="mt-6 inline-flex items-center justify-center rounded-xl bg-nexora-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-sky-600"
               >
                 Tüm ürünleri göster
