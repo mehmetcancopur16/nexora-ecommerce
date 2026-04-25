@@ -29,12 +29,15 @@ import ProfileLayout from "./pages/profile/ProfileLayout"
 import Wishlist from "./pages/profile/Wishlist"
 import { useAuthStore } from "./store/authStore"
 import { useNotificationStore } from "./store/notificationStore"
+import { useWishlistStore } from "./store/wishlistStore"
 
 function App() {
   const checkAuth = useAuthStore((state) => state.checkAuth)
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const fetchNotifications = useNotificationStore((state) => state.fetchNotifications)
   const resetNotifications = useNotificationStore((state) => state.reset)
+  const fetchWishlist = useWishlistStore((state) => state.fetchWishlist)
+  const resetWishlist = useWishlistStore((state) => state.reset)
 
   useEffect(() => {
     checkAuth()
@@ -43,10 +46,12 @@ function App() {
   useEffect(() => {
     if (isAuthenticated) {
       fetchNotifications()
+      fetchWishlist().catch(() => {})
     } else {
       resetNotifications()
+      resetWishlist()
     }
-  }, [isAuthenticated, fetchNotifications, resetNotifications])
+  }, [isAuthenticated, fetchNotifications, resetNotifications, fetchWishlist, resetWishlist])
 
   return (
     <BrowserRouter>

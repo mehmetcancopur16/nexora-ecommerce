@@ -1,6 +1,6 @@
 import { createElement } from "react"
 import { motion as Motion } from "framer-motion"
-import { ClipboardList, Clock, HelpCircle, Mail, MapPin, Package, Phone, Sparkles } from "lucide-react"
+import { ClipboardList, Clock, HelpCircle, Mail, MapPin, Package, Phone, ShieldCheck, Sparkles } from "lucide-react"
 import { Link } from "react-router"
 import Container from "../components/common/Container"
 import SupportContactForm from "../components/support/SupportContactForm"
@@ -11,6 +11,12 @@ const quickLinks = [
   { to: "/teslimat", label: "Teslimat", icon: Package },
   { to: "/iade-politikasi", label: "İade politikası", icon: HelpCircle },
   { to: "/profile/orders", label: "Siparişlerim", icon: ClipboardList },
+]
+
+const trustStats = [
+  { label: "Ortalama ilk yanit", value: "< 30 dk", icon: Clock },
+  { label: "Cozum orani", value: "%96", icon: ShieldCheck },
+  { label: "Canli destek", value: "Hafta ici", icon: Phone },
 ]
 
 function Support() {
@@ -63,6 +69,21 @@ function Support() {
 
         <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
           <div className="space-y-6">
+            <div className="grid gap-3 sm:grid-cols-3">
+              {trustStats.map((item) => (
+                <Motion.div
+                  key={item.label}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-sm"
+                >
+                  {createElement(item.icon, { className: "size-5 text-nexora-primary", "aria-hidden": true })}
+                  <p className="mt-2 text-xs font-medium uppercase tracking-wide text-slate-500">{item.label}</p>
+                  <p className="mt-1 text-lg font-bold text-slate-800">{item.value}</p>
+                </Motion.div>
+              ))}
+            </div>
             <div>
               <h2 className="flex items-center gap-2 text-xl font-semibold text-nexora-text">
                 <HelpCircle className="size-6 text-nexora-primary" aria-hidden />

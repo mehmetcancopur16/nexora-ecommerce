@@ -1,9 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2, Send } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import axiosInstance from "../../api/axiosInstance"
+import { useAuthStore } from "../../store/authStore"
 import { supportContactSchema } from "../../validations/support.validation"
 
 const CATEGORY_LABELS = {
@@ -15,11 +16,13 @@ const CATEGORY_LABELS = {
 
 function SupportContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const user = useAuthStore((state) => state.user)
 
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(supportContactSchema),
@@ -31,6 +34,20 @@ function SupportContactForm() {
       message: "",
     },
   })
+
+  useEffect(() => {
+    if (!user) return
+    const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ").trim()
+    reset({
+      name: fullName || "",
+      email: user.email || "",
+      category: "diger",
+      subject: "",
+      message: "",
+    })
+  }, [user, reset])
+
+  const messageLength = watch("message")?.length || 0
 
   const onSubmit = async (values) => {
     setIsSubmitting(true)
@@ -141,6 +158,10 @@ function SupportContactForm() {
           placeholder="Sipariş numaranız veya ürün adı varsa belirtin."
           {...register("message")}
         />
+        <div className="mt-1 flex items-center justify-between">
+          <span className="text-xs text-slate-500">En fazla 2000 karakter</span>
+          <span className="text-xs text-slate-400">{messageLength}/2000</span>
+        </div>
         {errors.message ? <p className="mt-1 text-xs text-rose-600">{errors.message.message}</p> : null}
       </div>
 

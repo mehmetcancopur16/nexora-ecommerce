@@ -1,10 +1,10 @@
 import { motion as Motion } from "framer-motion"
-import { Heart, HeartOff, Package, ShoppingCart, Sparkles } from "lucide-react"
-import { useEffect, useState } from "react"
+import { ArrowRight, Heart, HeartOff, Package, ShoppingCart, Sparkles } from "lucide-react"
+import { useEffect } from "react"
 import { Link } from "react-router"
 import { toast } from "sonner"
-import axiosInstance from "../../api/axiosInstance"
 import { useCartStore } from "../../store/cartStore"
+import { useWishlistStore } from "../../store/wishlistStore"
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api").replace(/\/api$/, "")
 
@@ -19,34 +19,27 @@ const getImageSource = (imagePath) => {
 }
 
 function Wishlist() {
-  const [products, setProducts] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const products = useWishlistStore((state) => state.items)
+  const isLoading = useWishlistStore((state) => state.isLoading)
+  const isHydrated = useWishlistStore((state) => state.isHydrated)
+  const error = useWishlistStore((state) => state.error)
+  const fetchWishlist = useWishlistStore((state) => state.fetchWishlist)
+  const removeFromWishlist = useWishlistStore((state) => state.removeFromWishlist)
+  const itemLoadingMap = useWishlistStore((state) => state.itemLoadingMap)
   const addItem = useCartStore((state) => state.addItem)
 
   useEffect(() => {
-    const fetchWishlist = async () => {
-      setIsLoading(true)
-      setError(null)
-      try {
-        const response = await axiosInstance.get("/users/wishlist")
-        setProducts(response?.data?.data || [])
-      } catch (fetchError) {
-        setError(fetchError?.response?.data?.message || "Favoriler yüklenemedi.")
-      } finally {
-        setIsLoading(false)
-      }
+    if (!isHydrated) {
+      fetchWishlist().catch(() => {})
     }
-    fetchWishlist()
-  }, [])
+  }, [isHydrated, fetchWishlist])
 
   const handleRemove = async (productId) => {
     try {
-      const response = await axiosInstance.patch(`/users/wishlist/${productId}`)
-      setProducts(response?.data?.data || [])
-      toast.success("Ürün favorilerden kaldırıldı.")
+      await removeFromWishlist(productId)
+      toast.success("Urun favorilerden kaldirildi.")
     } catch (actionError) {
-      toast.error(actionError?.response?.data?.message || "İşlem başarısız.")
+      toast.error(actionError?.message || "Islem basarisiz.")
     }
   }
 
@@ -54,7 +47,7 @@ function Wishlist() {
     try {
       await addItem({ productId, quantity: 1 })
       await handleRemove(productId)
-      toast.success("Ürün sepete eklendi, favorilerden çıkarıldı.")
+      toast.success("Urun sepete eklendi, favorilerden cikarildi.")
     } catch (actionError) {
       toast.error(actionError?.message || "Sepete eklenemedi.")
     }
@@ -71,7 +64,18 @@ function Wishlist() {
   }
 
   if (error) {
-    return <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</div>
+    return (
+      <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        <p>{error}</p>
+        <button
+          type="button"
+          onClick={() => fetchWishlist().catch(() => {})}
+          className="mt-2 rounded-lg border border-rose-300 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700"
+        >
+          Tekrar dene
+        </button>
+      </div>
+    )
   }
 
   if (!products.length) {
@@ -117,7 +121,7 @@ function Wishlist() {
             <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
               <img
                 src={getImageSource(product?.images?.[0])}
-                alt=""
+                alt={product?.name || "Urun"}
                 className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
               />
               {Number(product?.stock) === 0 ? (
@@ -129,11 +133,18 @@ function Wishlist() {
             <div className="flex flex-1 flex-col p-4">
               <h2 className="line-clamp-2 min-h-12 text-base font-semibold text-slate-900">{product?.name}</h2>
               <p className="mt-2 text-lg font-bold text-nexora-text">{Number(product?.price || 0).toFixed(2)} TL</p>
+              <Link
+                to={`/products/${product._id}`}
+                className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-nexora-primary hover:underline"
+              >
+                Urun detayina git
+                <ArrowRight className="size-4" />
+              </Link>
               <div className="mt-4 flex flex-1 flex-wrap items-end gap-2">
                 <button
                   type="button"
                   onClick={() => moveToCart(product._id)}
-                  disabled={Number(product?.stock) === 0}
+                  disabled={Number(product?.stock) === 0 || Boolean(itemLoadingMap[product._id])}
                   className="inline-flex flex-1 min-w-[120px] items-center justify-center gap-2 rounded-xl bg-nexora-primary px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:bg-slate-300"
                 >
                   <ShoppingCart className="size-4" />
@@ -142,7 +153,8 @@ function Wishlist() {
                 <button
                   type="button"
                   onClick={() => handleRemove(product._id)}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm font-semibold text-rose-700"
+                  disabled={Boolean(itemLoadingMap[product._id])}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm font-semibold text-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <HeartOff className="size-4" />
                   Kaldır

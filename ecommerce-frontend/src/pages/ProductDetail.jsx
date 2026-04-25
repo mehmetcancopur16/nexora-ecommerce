@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from "react"
+import { Heart, ShieldCheck, Truck } from "lucide-react"
 import { Link, useNavigate, useParams } from "react-router"
 import { toast } from "sonner"
 import axiosInstance from "../api/axiosInstance"
 import { useAuthStore } from "../store/authStore"
 import { useCartStore } from "../store/cartStore"
 import { useProductStore } from "../store/productStore"
+import { useWishlistStore } from "../store/wishlistStore"
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api").replace(/\/api$/, "")
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api").replace(/\/api$/, "")
 const FALLBACK_IMAGE = "https://placehold.co/800x800/e2e8f0/64748b?text=Nexora"
 
 const getImageSource = (imagePath) => {
@@ -40,6 +42,9 @@ function ProductDetail() {
   const { id } = useParams()
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const addItem = useCartStore((state) => state.addItem)
+  const toggleWishlist = useWishlistStore((state) => state.toggleWishlist)
+  const isInWishlist = useWishlistStore((state) => state.isInWishlist(id))
+  const wishlistItemLoading = useWishlistStore((state) => state.itemLoadingMap[id])
   const product = useProductStore((state) => state.product)
   const loading = useProductStore((state) => state.loading)
   const error = useProductStore((state) => state.error)
@@ -161,6 +166,20 @@ function ProductDetail() {
       toast.error(submitError?.response?.data?.message || "Yorum gonderilemedi.")
     } finally {
       setIsSubmittingReview(false)
+    }
+  }
+
+  const handleToggleWishlist = async () => {
+    if (!isAuthenticated) {
+      toast.error("Favorilere eklemek icin once giris yapin.")
+      navigate("/login")
+      return
+    }
+    try {
+      const result = await toggleWishlist(product?._id)
+      toast.success(result.inWishlist ? "Urun favorilere eklendi." : "Urun favorilerden kaldirildi.")
+    } catch (toggleError) {
+      toast.error(toggleError?.message || "Favori islemi basarisiz.")
     }
   }
 
@@ -299,18 +318,41 @@ function ProductDetail() {
               </div>
             </div>
 
-            <button
-              type="button"
-              disabled={stock <= 0}
-              onClick={handleAddToCart}
-              className="w-full rounded-xl bg-nexora-accent px-5 py-4 text-base font-bold text-white transition hover:bg-rose-600 disabled:cursor-not-allowed disabled:bg-slate-300"
-            >
-              Sepete Ekle
-            </button>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                disabled={stock <= 0}
+                onClick={handleAddToCart}
+                className="w-full rounded-xl bg-nexora-accent px-5 py-4 text-base font-bold text-white transition hover:bg-rose-600 disabled:cursor-not-allowed disabled:bg-slate-300"
+              >
+                Sepete Ekle
+              </button>
+              <button
+                type="button"
+                onClick={handleToggleWishlist}
+                disabled={Boolean(wishlistItemLoading)}
+                className={`w-full rounded-xl border px-5 py-4 text-base font-bold transition ${
+                  isInWishlist
+                    ? "border-rose-200 bg-rose-50 text-rose-700"
+                    : "border-slate-200 bg-white text-slate-700 hover:border-rose-200 hover:text-rose-600"
+                } disabled:cursor-not-allowed disabled:opacity-60`}
+              >
+                <span className="inline-flex items-center gap-2">
+                  <Heart className={`size-4 ${isInWishlist ? "fill-current" : ""}`} />
+                  {isInWishlist ? "Favorilerde" : "Favorilere ekle"}
+                </span>
+              </button>
+            </div>
             <div className="grid grid-cols-1 gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600 sm:grid-cols-3">
-              <p>Guvenli odeme</p>
+              <p className="inline-flex items-center gap-1.5">
+                <ShieldCheck className="size-4 text-emerald-600" />
+                Guvenli odeme
+              </p>
               <p>14 gun iade</p>
-              <p>Hizli teslimat</p>
+              <p className="inline-flex items-center gap-1.5">
+                <Truck className="size-4 text-sky-600" />
+                Hizli teslimat
+              </p>
             </div>
           </div>
         </div>
