@@ -24,6 +24,17 @@ const reviewSchema = new mongoose.Schema(
       trim: true,
       default: "",
     },
+    moderationStatus: {
+      type: String,
+      enum: ["approved", "rejected"],
+      default: "approved",
+      index: true,
+    },
+    isHidden: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
   },
   { timestamps: true }
 );
@@ -33,7 +44,11 @@ reviewSchema.index({ product: 1, user: 1 }, { unique: true });
 reviewSchema.statics.calcAverageRatings = async function calcAverageRatings(productId) {
   const stats = await this.aggregate([
     {
-      $match: { product: new mongoose.Types.ObjectId(productId) },
+      $match: {
+        product: new mongoose.Types.ObjectId(productId),
+        moderationStatus: "approved",
+        isHidden: false,
+      },
     },
     {
       $group: {

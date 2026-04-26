@@ -40,7 +40,11 @@ exports.getProductReviews = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Geçersiz ürün kimliği", true);
   }
 
-  const reviews = await Review.find({ product: productId })
+  const reviews = await Review.find({
+    product: productId,
+    moderationStatus: "approved",
+    isHidden: false,
+  })
     .sort({ createdAt: -1 })
     .populate({ path: "user", select: "firstName lastName role" });
 

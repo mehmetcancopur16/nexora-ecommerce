@@ -6,6 +6,12 @@ import ProtectedRoute from "./components/layout/ProtectedRoute"
 import AdminLayout from "./pages/admin/AdminLayout"
 import AdminOrders from "./pages/admin/AdminOrders"
 import AdminProducts from "./pages/admin/AdminProducts"
+import AdminCategories from "./pages/admin/AdminCategories"
+import AdminCoupons from "./pages/admin/AdminCoupons"
+import AdminReports from "./pages/admin/AdminReports"
+import AdminReviews from "./pages/admin/AdminReviews"
+import AdminSettings from "./pages/admin/AdminSettings"
+import AdminSupportInbox from "./pages/admin/AdminSupportInbox"
 import AdminUsers from "./pages/admin/AdminUsers"
 import Dashboard from "./pages/admin/Dashboard"
 import Cart from "./pages/Cart"
@@ -93,6 +99,12 @@ function App() {
             <Route path="products" element={<AdminProducts />} />
             <Route path="orders" element={<AdminOrders />} />
             <Route path="users" element={<AdminUsers />} />
+            <Route path="categories" element={<AdminCategories />} />
+            <Route path="coupons" element={<AdminCoupons />} />
+            <Route path="reviews" element={<AdminReviews />} />
+            <Route path="reports" element={<AdminReports />} />
+            <Route path="settings" element={<AdminSettings />} />
+            <Route path="support-inbox" element={<AdminSupportInbox />} />
           </Route>
         </Route>
 

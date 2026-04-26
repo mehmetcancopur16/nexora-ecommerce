@@ -37,6 +37,21 @@ const contactMessageSchema = new mongoose.Schema(
       enum: ["support"],
       default: "support",
     },
+    adminStatus: {
+      type: String,
+      enum: ["open", "in_progress", "resolved"],
+      default: "open",
+      index: true,
+    },
+    resolvedAt: {
+      type: Date,
+      default: null,
+    },
+    resolvedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
   },
   { timestamps: true }
 );

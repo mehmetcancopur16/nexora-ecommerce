@@ -40,7 +40,7 @@ function Dashboard() {
     <section className="space-y-6">
       <h2 className="text-3xl font-semibold text-slate-900">Admin Dashboard</h2>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-5">
         <div className="rounded-2xl bg-white p-5 shadow-sm">
           <p className="text-sm text-slate-500">Toplam Gelir</p>
           <p className="mt-2 text-2xl font-bold text-slate-900">{Number(stats?.totalRevenue || 0).toFixed(2)} TL</p>
@@ -52,6 +52,14 @@ function Dashboard() {
         <div className="rounded-2xl bg-white p-5 shadow-sm">
           <p className="text-sm text-slate-500">Siparis Sayisi</p>
           <p className="mt-2 text-2xl font-bold text-slate-900">{stats?.totalOrders || 0}</p>
+        </div>
+        <div className="rounded-2xl bg-white p-5 shadow-sm">
+          <p className="text-sm text-slate-500">Aktif Kupon</p>
+          <p className="mt-2 text-2xl font-bold text-slate-900">{stats?.activeCouponCount || 0}</p>
+        </div>
+        <div className="rounded-2xl bg-white p-5 shadow-sm">
+          <p className="text-sm text-slate-500">Acil Destek</p>
+          <p className="mt-2 text-2xl font-bold text-slate-900">{stats?.openSupportCount || 0}</p>
         </div>
       </div>
 
@@ -68,6 +76,37 @@ function Dashboard() {
               <Tooltip />
             </PieChart>
           </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="rounded-2xl bg-white p-5 shadow-sm">
+        <h3 className="text-lg font-semibold text-slate-800">Dusuk Stok Urunler</h3>
+        <div className="mt-3 overflow-x-auto">
+          <table className="min-w-full text-sm">
+            <thead className="bg-slate-50 text-left text-slate-600">
+              <tr>
+                <th className="px-4 py-2.5">Urun</th>
+                <th className="px-4 py-2.5">Stok</th>
+                <th className="px-4 py-2.5">Fiyat</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(stats?.lowStockProducts || []).map((item) => (
+                <tr key={item._id} className="border-t border-slate-100">
+                  <td className="px-4 py-2.5 text-slate-800">{item.name}</td>
+                  <td className="px-4 py-2.5 text-slate-700">{item.stock}</td>
+                  <td className="px-4 py-2.5 text-slate-700">{Number(item.price || 0).toFixed(2)} TL</td>
+                </tr>
+              ))}
+              {!stats?.lowStockProducts?.length && (
+                <tr>
+                  <td className="px-4 py-3 text-slate-500" colSpan={3}>
+                    Kritik stok urunu bulunmuyor.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </section>

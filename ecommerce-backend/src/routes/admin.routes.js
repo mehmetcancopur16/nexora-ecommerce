@@ -7,6 +7,15 @@ const {
   adminUsersQuerySchema,
   adminUserIdParamSchema,
   updateUserRoleStatusSchema,
+  adminPaginationQuerySchema,
+  adminCategoryBodySchema,
+  adminCategoryUpdateBodySchema,
+  adminEntityIdParamSchema,
+  couponBodySchema,
+  couponUpdateBodySchema,
+  reviewModerationBodySchema,
+  supportStatusBodySchema,
+  storeSettingsBodySchema,
 } = require("../validations/admin.validation");
 
 const router = express.Router();
@@ -188,5 +197,47 @@ router.patch(
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.delete("/users/:id", validateParams(adminUserIdParamSchema), adminController.deleteUser);
+
+router.get("/categories", adminController.getAdminCategories);
+router.post("/categories", validateBody(adminCategoryBodySchema), adminController.createAdminCategory);
+router.patch(
+  "/categories/:id",
+  validateParams(adminEntityIdParamSchema),
+  validateBody(adminCategoryUpdateBodySchema),
+  adminController.updateAdminCategory
+);
+router.delete("/categories/:id", validateParams(adminEntityIdParamSchema), adminController.deleteAdminCategory);
+
+router.get("/coupons", validateQuery(adminPaginationQuerySchema), adminController.getCoupons);
+router.post("/coupons", validateBody(couponBodySchema), adminController.createCoupon);
+router.patch(
+  "/coupons/:id",
+  validateParams(adminEntityIdParamSchema),
+  validateBody(couponUpdateBodySchema),
+  adminController.updateCoupon
+);
+router.delete("/coupons/:id", validateParams(adminEntityIdParamSchema), adminController.deleteCoupon);
+
+router.get("/reviews", validateQuery(adminPaginationQuerySchema), adminController.getAdminReviews);
+router.patch(
+  "/reviews/:id",
+  validateParams(adminEntityIdParamSchema),
+  validateBody(reviewModerationBodySchema),
+  adminController.updateAdminReview
+);
+router.delete("/reviews/:id", validateParams(adminEntityIdParamSchema), adminController.deleteAdminReview);
+
+router.get("/reports", adminController.getAdminReports);
+
+router.get("/settings", adminController.getStoreSettings);
+router.patch("/settings", validateBody(storeSettingsBodySchema), adminController.updateStoreSettings);
+
+router.get("/support-messages", validateQuery(adminPaginationQuerySchema), adminController.getSupportMessages);
+router.patch(
+  "/support-messages/:id",
+  validateParams(adminEntityIdParamSchema),
+  validateBody(supportStatusBodySchema),
+  adminController.updateSupportMessageStatus
+);
 
 module.exports = router;
