@@ -127,6 +127,13 @@ const listProductsQuerySchema = z.object({
     }
     return false;
   }, z.boolean().optional()),
+  active: z.preprocess((val) => {
+    if (val === undefined || val === "") return undefined;
+    if (typeof val !== "string") return undefined;
+    const normalized = val.toLowerCase();
+    if (normalized === "all" || normalized === "active" || normalized === "inactive") return normalized;
+    return undefined;
+  }, z.enum(["all", "active", "inactive"]).optional()),
 });
 
 module.exports = {

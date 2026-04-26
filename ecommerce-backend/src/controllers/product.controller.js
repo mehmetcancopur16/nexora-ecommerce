@@ -67,7 +67,7 @@ function resolveProductListSort(sortParam, hasTextSearch) {
 }
 
 exports.getAllProducts = asyncHandler(async (req, res) => {
-  const { page, limit, category, search, startsWith, includeInactive, sort } = req.query;
+  const { page, limit, category, search, startsWith, includeInactive, sort, active } = req.query;
   const skip = (page - 1) * limit;
   const isAdmin = await isAdminFromRequest(req);
   const canIncludeInactive = isAdmin && includeInactive === true;
@@ -75,6 +75,10 @@ exports.getAllProducts = asyncHandler(async (req, res) => {
   const filter = {};
   if (!canIncludeInactive) {
     filter.isActive = true;
+  } else if (active === "active") {
+    filter.isActive = true;
+  } else if (active === "inactive") {
+    filter.isActive = false;
   }
   if (category) {
     filter.category = new mongoose.Types.ObjectId(category);
