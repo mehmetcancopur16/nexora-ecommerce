@@ -128,9 +128,44 @@ exports.deleteUser = asyncHandler(async (req, res) => {
   });
 });
 
-exports.getAdminCategories = asyncHandler(async (_req, res) => {
-  const categories = await Category.find().sort({ createdAt: -1 }).lean();
-  res.json({ success: true, data: categories });
+exports.getAdminCategories = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 20, search } = req.query;
+  const skip = (page - 1) * limit;
+  const filter = {};
+  if (search?.trim()) {
+    filter.$or = [
+      { name: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  const [categories, total] = await Promise.all([
+    Category.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+    Category.countDocuments(filter),
+  ]);
+
+  const categoryIds = categories.map((item) => item._id);
+  const productsByCategory = await Product.aggregate([
+    { $match: { category: { $in: categoryIds } } },
+    { $group: { _id: "$category", totalProducts: { $sum: 1 }, activeProducts: { $sum: { $cond: ["$isActive", 1, 0] } } } },
+  ]);
+  const statsMap = new Map(productsByCategory.map((item) => [String(item._id), item]));
+  const enriched = categories.map((item) => ({
+    ...item,
+    totalProducts: statsMap.get(String(item._id))?.totalProducts || 0,
+    activeProducts: statsMap.get(String(item._id))?.activeProducts || 0,
+  }));
+
+  res.json({
+    success: true,
+    data: enriched,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit) || 1,
+    },
+  });
 });
 
 exports.createAdminCategory = asyncHandler(async (req, res) => {
@@ -150,6 +185,10 @@ exports.updateAdminCategory = asyncHandler(async (req, res) => {
 });
 
 exports.deleteAdminCategory = asyncHandler(async (req, res) => {
+  const productCount = await Product.countDocuments({ category: req.params.id });
+  if (productCount > 0) {
+    throw new ApiError(409, "Bu kategoriye bagli urunler oldugu icin silinemez", true);
+  }
   const category = await Category.findByIdAndDelete(req.params.id);
   if (!category) {
     throw new ApiError(404, "Kategori bulunamadı", true);

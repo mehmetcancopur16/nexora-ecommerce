@@ -198,7 +198,7 @@ router.patch(
  */
 router.delete("/users/:id", validateParams(adminUserIdParamSchema), adminController.deleteUser);
 
-router.get("/categories", adminController.getAdminCategories);
+router.get("/categories", validateQuery(adminPaginationQuerySchema), adminController.getAdminCategories);
 router.post("/categories", validateBody(adminCategoryBodySchema), adminController.createAdminCategory);
 router.patch(
   "/categories/:id",
