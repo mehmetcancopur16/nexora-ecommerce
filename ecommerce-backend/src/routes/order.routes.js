@@ -2,11 +2,12 @@ const express = require("express");
 const orderController = require("../controllers/order.controller");
 const { authMiddleware } = require("../middlewares/auth.middleware");
 const { requireRoles } = require("../middlewares/role.middleware");
-const { validateBody, validateParams } = require("../middlewares/validate.middleware");
+const { validateBody, validateParams, validateQuery } = require("../middlewares/validate.middleware");
 const {
   createOrderSchema,
   payMockOrderSchema,
   updateOrderStatusSchema,
+  adminOrdersQuerySchema,
   orderIdParamSchema,
 } = require("../validations/order.validation");
 
@@ -106,7 +107,7 @@ router.post("/my/:id/cancel", validateParams(orderIdParamSchema), orderControlle
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get("/", requireRoles("admin"), orderController.getAllOrders);
+router.get("/", requireRoles("admin"), validateQuery(adminOrdersQuerySchema), orderController.getAllOrders);
 
 /**
  * @openapi

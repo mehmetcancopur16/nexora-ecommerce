@@ -216,13 +216,51 @@ exports.cancelMyOrder = asyncHandler(async (req, res) => {
   res.json({ success: true, data: order, message: "Sipariş iptal edildi" });
 });
 
-exports.getAllOrders = asyncHandler(async (_req, res) => {
-  const orders = await Order.find()
-    .sort({ createdAt: -1 })
-    .populate({ path: "user", select: "email role firstName lastName" })
-    .populate({ path: "items.product", select: "name description images" });
+exports.getAllOrders = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 20, search, status, paymentStatus } = req.query;
+  const skip = (page - 1) * limit;
+  const filter = {};
+  if (status) filter.status = status;
+  if (paymentStatus) filter.paymentStatus = paymentStatus;
 
-  res.json({ success: true, data: orders });
+  if (search?.trim()) {
+    const users = await mongoose
+      .model("User")
+      .find({
+        $or: [
+          { email: { $regex: search, $options: "i" } },
+          { firstName: { $regex: search, $options: "i" } },
+          { lastName: { $regex: search, $options: "i" } },
+        ],
+      })
+      .select("_id")
+      .lean();
+    filter.$or = [
+      { orderNumber: { $regex: search, $options: "i" } },
+      { user: { $in: users.map((item) => item._id) } },
+    ];
+  }
+
+  const [orders, total] = await Promise.all([
+    Order.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate({ path: "user", select: "email role firstName lastName" })
+      .populate({ path: "items.product", select: "name description images" }),
+    Order.countDocuments(filter),
+  ]);
+
+  res.json({
+    success: true,
+    data: orders,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit) || 1,
+    },
+  });
 });
 
 exports.updateOrderStatus = asyncHandler(async (req, res) => {

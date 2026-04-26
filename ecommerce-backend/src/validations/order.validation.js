@@ -53,6 +53,22 @@ const updateOrderStatusSchema = z.object({
   status: orderStatusEnum,
 });
 
+const adminOrdersQuerySchema = z.object({
+  page: z.preprocess((val) => {
+    if (val === undefined || val === "") return 1;
+    const n = Number(val);
+    return Number.isFinite(n) ? n : 1;
+  }, z.number().int().min(1)),
+  limit: z.preprocess((val) => {
+    if (val === undefined || val === "") return 20;
+    const n = Number(val);
+    return Number.isFinite(n) ? n : 20;
+  }, z.number().int().min(1).max(100)),
+  search: z.preprocess((val) => (typeof val === "string" ? val.trim() : val), z.string().optional()),
+  status: orderStatusEnum.optional(),
+  paymentStatus: paymentStatusEnum.optional(),
+});
+
 const orderIdParamSchema = z.object({
   id: objectIdSchema,
 });
@@ -61,6 +77,7 @@ module.exports = {
   createOrderSchema: createOrderDraftSchema,
   payMockOrderSchema,
   updateOrderStatusSchema,
+  adminOrdersQuerySchema,
   orderIdParamSchema,
   orderStatusEnum,
   paymentStatusEnum,
