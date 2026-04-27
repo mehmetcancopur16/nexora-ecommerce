@@ -63,7 +63,13 @@ function SupportContactForm() {
       }
       const response = await axiosInstance.post("/contact", payload)
       toast.success(response?.data?.message || "Mesajınız gönderildi.")
-      reset()
+      reset({
+        name: values.name,
+        email: values.email,
+        category: "diger",
+        subject: "",
+        message: "",
+      })
     } catch (error) {
       const msg = error?.response?.data?.message || error?.message || "Gönderim başarısız oldu."
       toast.error(typeof msg === "string" ? msg : "Gönderim başarısız oldu.")
@@ -159,8 +165,8 @@ function SupportContactForm() {
           {...register("message")}
         />
         <div className="mt-1 flex items-center justify-between">
-          <span className="text-xs text-slate-500">En fazla 2000 karakter</span>
-          <span className="text-xs text-slate-400">{messageLength}/2000</span>
+          <span className="text-xs text-slate-500">En fazla 5000 karakter</span>
+          <span className="text-xs text-slate-400">{messageLength}/5000</span>
         </div>
         {errors.message ? <p className="mt-1 text-xs text-rose-600">{errors.message.message}</p> : null}
       </div>

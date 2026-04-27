@@ -10,6 +10,9 @@ const ApiError = require("../utils/apiError");
 const asyncHandler = require("../utils/asyncHandler");
 
 exports.getDashboardStats = asyncHandler(async (_req, res) => {
+  const settings = await StoreSettings.findOne().lean();
+  const lowStockThreshold = Number.isFinite(settings?.lowStockThreshold) ? settings.lowStockThreshold : 10;
+
   const [userCount, orderStats, statusDistribution, lowStockProducts, activeCouponCount, openSupportCount] = await Promise.all([
     User.countDocuments(),
     Order.aggregate([
@@ -32,7 +35,7 @@ exports.getDashboardStats = asyncHandler(async (_req, res) => {
       { $project: { _id: 0, status: "$_id", count: 1 } },
       { $sort: { status: 1 } },
     ]),
-    Product.find({ stock: { $lt: 10 }, isActive: true })
+    Product.find({ stock: { $lt: lowStockThreshold }, isActive: true })
       .select("name stock price category")
       .sort({ stock: 1 })
       .limit(20)
@@ -51,6 +54,7 @@ exports.getDashboardStats = asyncHandler(async (_req, res) => {
       lowStockProducts,
       activeCouponCount,
       openSupportCount,
+      lowStockThreshold,
     },
   });
 });

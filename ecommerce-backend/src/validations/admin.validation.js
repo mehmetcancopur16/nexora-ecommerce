@@ -147,8 +147,14 @@ const storeSettingsBodySchema = z
   .object({
     storeName: z.string().trim().min(2).max(120).optional(),
     supportEmail: z.string().email().optional(),
-    supportPhone: z.string().max(40).optional(),
-    currency: z.string().trim().min(3).max(3).optional(),
+    supportPhone: z
+      .string()
+      .trim()
+      .min(7)
+      .max(40)
+      .regex(/^[+\d\s()-]+$/, "Geçersiz telefon formatı")
+      .optional(),
+    currency: z.enum(["TRY", "USD", "EUR", "GBP"]).optional(),
     maintenanceMode: z.boolean().optional(),
     allowGuestCheckout: z.boolean().optional(),
     lowStockThreshold: z.number().int().min(0).max(500).optional(),
