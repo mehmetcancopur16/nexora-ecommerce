@@ -1,6 +1,6 @@
 import { motion as Motion } from "framer-motion"
 import { BadgePercent, Calendar, Loader2, RefreshCw, Search } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 import axiosInstance from "../../api/axiosInstance"
 
@@ -26,7 +26,7 @@ function AdminCoupons() {
   const [filters, setFilters] = useState({ page: 1, limit: 12, search: "", status: "" })
   const [pagination, setPagination] = useState({ total: 0, totalPages: 1 })
 
-  const fetchItems = async ({ silent = false } = {}) => {
+  const fetchItems = useCallback(async ({ silent = false } = {}) => {
     if (silent) setIsRefreshing(true)
     else setIsLoading(true)
     try {
@@ -49,11 +49,11 @@ function AdminCoupons() {
       setIsLoading(false)
       setIsRefreshing(false)
     }
-  }
+  }, [filters.limit, filters.page, filters.search, filters.status])
 
   useEffect(() => {
     fetchItems()
-  }, [filters.page, filters.limit, filters.search, filters.status])
+  }, [fetchItems])
 
   const openCreate = () => {
     setEditing(null)

@@ -199,33 +199,215 @@ router.patch(
  */
 router.delete("/users/:id", validateParams(adminUserIdParamSchema), adminController.deleteUser);
 
+/**
+ * @openapi
+ * /api/admin/categories:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Kategorileri sayfalı listeler
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Başarılı
+ */
 router.get("/categories", validateQuery(adminPaginationQuerySchema), adminController.getAdminCategories);
+/**
+ * @openapi
+ * /api/admin/categories:
+ *   post:
+ *     tags: [Admin]
+ *     summary: Yeni kategori oluşturur
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       201:
+ *         description: Kategori oluşturuldu
+ *       400:
+ *         description: Geçersiz veri
+ */
 router.post("/categories", validateBody(adminCategoryBodySchema), adminController.createAdminCategory);
+/**
+ * @openapi
+ * /api/admin/categories/{id}:
+ *   patch:
+ *     tags: [Admin]
+ *     summary: Kategori günceller
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Kategori güncellendi
+ *       404:
+ *         description: Kategori bulunamadı
+ */
 router.patch(
   "/categories/:id",
   validateParams(adminEntityIdParamSchema),
   validateBody(adminCategoryUpdateBodySchema),
   adminController.updateAdminCategory
 );
+/**
+ * @openapi
+ * /api/admin/categories/{id}:
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Kategori siler
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Kategori silindi
+ *       404:
+ *         description: Kategori bulunamadı
+ */
 router.delete("/categories/:id", validateParams(adminEntityIdParamSchema), adminController.deleteAdminCategory);
 
+/**
+ * @openapi
+ * /api/admin/coupons:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Kuponları sayfalı listeler
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Başarılı
+ */
 router.get("/coupons", validateQuery(adminPaginationQuerySchema), adminController.getCoupons);
+/**
+ * @openapi
+ * /api/admin/coupons:
+ *   post:
+ *     tags: [Admin]
+ *     summary: Kupon oluşturur
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       201:
+ *         description: Kupon oluşturuldu
+ */
 router.post("/coupons", validateBody(couponBodySchema), adminController.createCoupon);
+/**
+ * @openapi
+ * /api/admin/coupons/{id}:
+ *   patch:
+ *     tags: [Admin]
+ *     summary: Kupon günceller
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Kupon güncellendi
+ *       404:
+ *         description: Kupon bulunamadı
+ */
 router.patch(
   "/coupons/:id",
   validateParams(adminEntityIdParamSchema),
   validateBody(couponUpdateBodySchema),
   adminController.updateCoupon
 );
+/**
+ * @openapi
+ * /api/admin/coupons/{id}:
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Kupon siler
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Kupon silindi
+ *       404:
+ *         description: Kupon bulunamadı
+ */
 router.delete("/coupons/:id", validateParams(adminEntityIdParamSchema), adminController.deleteCoupon);
 
+/**
+ * @openapi
+ * /api/admin/reviews:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Yorumları moderasyon için listeler
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Başarılı
+ */
 router.get("/reviews", validateQuery(adminPaginationQuerySchema), adminController.getAdminReviews);
+/**
+ * @openapi
+ * /api/admin/reviews/{id}:
+ *   patch:
+ *     tags: [Admin]
+ *     summary: Yorumu moderasyon açısından günceller
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Yorum güncellendi
+ *       404:
+ *         description: Yorum bulunamadı
+ */
 router.patch(
   "/reviews/:id",
   validateParams(adminEntityIdParamSchema),
   validateBody(reviewModerationBodySchema),
   adminController.updateAdminReview
 );
+/**
+ * @openapi
+ * /api/admin/reviews/{id}:
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Yorumu siler
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Yorum silindi
+ *       404:
+ *         description: Yorum bulunamadı
+ */
 router.delete("/reviews/:id", validateParams(adminEntityIdParamSchema), adminController.deleteAdminReview);
 
 /**
@@ -277,10 +459,68 @@ router.delete("/reviews/:id", validateParams(adminEntityIdParamSchema), adminCon
  */
 router.get("/reports", validateQuery(reportsQuerySchema), adminController.getAdminReports);
 
+/**
+ * @openapi
+ * /api/admin/settings:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Mağaza ayarlarını getirir
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Başarılı
+ */
 router.get("/settings", adminController.getStoreSettings);
+/**
+ * @openapi
+ * /api/admin/settings:
+ *   patch:
+ *     tags: [Admin]
+ *     summary: Mağaza ayarlarını günceller
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Ayarlar güncellendi
+ *       400:
+ *         description: Geçersiz veri
+ */
 router.patch("/settings", validateBody(storeSettingsBodySchema), adminController.updateStoreSettings);
 
+/**
+ * @openapi
+ * /api/admin/support-messages:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Destek mesajlarını listeler
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Başarılı
+ */
 router.get("/support-messages", validateQuery(adminPaginationQuerySchema), adminController.getSupportMessages);
+/**
+ * @openapi
+ * /api/admin/support-messages/{id}:
+ *   patch:
+ *     tags: [Admin]
+ *     summary: Destek mesajı admin durumunu günceller
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Durum güncellendi
+ *       404:
+ *         description: Mesaj bulunamadı
+ */
 router.patch(
   "/support-messages/:id",
   validateParams(adminEntityIdParamSchema),

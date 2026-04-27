@@ -5,13 +5,15 @@ import {
   CirclePercent,
   ClipboardList,
   LayoutDashboard,
+  LogOut,
   MessageSquareMore,
   Settings,
   Star,
   Tag,
   Users,
 } from "lucide-react"
-import { NavLink, Outlet } from "react-router"
+import { NavLink, Outlet, useNavigate } from "react-router"
+import Button from "../../components/common/Button"
 import { useAuthStore } from "../../store/authStore"
 
 const navItems = [
@@ -29,6 +31,13 @@ const navItems = [
 
 function AdminLayout() {
   const user = useAuthStore((state) => state.user)
+  const logout = useAuthStore((state) => state.logout)
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    logout()
+    navigate("/login")
+  }
 
   return (
     <div className="min-h-screen bg-slate-100/80">
@@ -36,32 +45,47 @@ function AdminLayout() {
         <aside className="relative overflow-hidden bg-slate-950 p-5 text-slate-200">
           <div className="pointer-events-none absolute -left-14 -top-16 h-44 w-44 rounded-full bg-sky-500/20 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-14 -right-10 h-40 w-40 rounded-full bg-fuchsia-500/20 blur-3xl" />
-          <div className="relative">
-            <h1 className="text-2xl font-bold text-white">Nexora Admin</h1>
-            <p className="mt-1 text-xs text-slate-400">Full control center</p>
-          </div>
-          <nav className="relative mt-6 space-y-2">
-            {navItems.map((item) => {
-              const Icon = item.icon
-              return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.to === "/admin"}
-                className={({ isActive }) =>
-                  `flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-sm font-medium transition ${
-                    isActive
-                      ? "bg-gradient-to-r from-sky-500 to-indigo-500 text-white shadow-lg shadow-sky-500/25"
-                      : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                  }`
-                }
+          <div className="relative flex h-full min-h-[calc(100vh-2.5rem)] flex-col">
+            <div>
+              <h1 className="text-2xl font-bold text-white">Nexora Admin</h1>
+              <p className="mt-1 text-xs text-slate-400">Full control center</p>
+            </div>
+            <nav className="mt-6 space-y-2">
+              {navItems.map((item) => {
+                const Icon = item.icon
+                return (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.to === "/admin"}
+                    className={({ isActive }) =>
+                      `flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-sm font-medium transition ${
+                        isActive
+                          ? "bg-gradient-to-r from-sky-500 to-indigo-500 text-white shadow-lg shadow-sky-500/25"
+                          : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                      }`
+                    }
+                  >
+                    <Icon className="size-4" />
+                    {item.label}
+                  </NavLink>
+                )
+              })}
+            </nav>
+
+            <div className="mt-auto pt-4">
+              <Button
+                type="button"
+                variant="danger"
+                size="md"
+                onClick={handleLogout}
+                className="w-full gap-2"
               >
-                <Icon className="size-4" />
-                {item.label}
-              </NavLink>
-              )
-            })}
-          </nav>
+                <LogOut className="size-4" />
+                Cikis Yap
+              </Button>
+            </div>
+          </div>
         </aside>
 
         <main className="p-4 md:p-6">

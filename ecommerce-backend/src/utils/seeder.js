@@ -7,6 +7,13 @@ const Category = require("../models/Category.model");
 const Cart = require("../models/Cart.model");
 const Order = require("../models/Order.model");
 const Review = require("../models/Review.model");
+const Coupon = require("../models/Coupon.model");
+const ContactMessage = require("../models/ContactMessage.model");
+const Notification = require("../models/Notification.model");
+const PaymentMethod = require("../models/PaymentMethod.model");
+const ReturnRequest = require("../models/ReturnRequest.model");
+const NewsletterSubscriber = require("../models/NewsletterSubscriber.model");
+const StoreSettings = require("../models/StoreSettings.model");
 const logger = require("./logger");
 
 const seedUsers = [
@@ -121,6 +128,8 @@ function buildCarts(users, products) {
 function buildOrders(users, products) {
   const normalUsers = users.filter((user) => user.role === "user");
   const statuses = ["pending", "processing", "shipped", "delivered", "cancelled"];
+  const paymentStatuses = ["pending_payment", "paid", "failed", "paid", "paid"];
+  const paymentMethods = ["mock_card", "bank_transfer", "cash_on_delivery", "mock_card", "mock_card"];
 
   return statuses.map((status, index) => {
     const user = normalUsers[index % normalUsers.length];
@@ -137,6 +146,8 @@ function buildOrders(users, products) {
       items,
       totalAmount,
       status,
+      paymentStatus: paymentStatuses[index % paymentStatuses.length],
+      paymentMethod: paymentMethods[index % paymentMethods.length],
       orderNumber: `NXR-SEED-${Date.now()}-${index + 1}`,
       shippingAddress: user.address
         ? {
@@ -180,8 +191,166 @@ function buildReviews(users, products) {
       product: product._id,
       rating,
       comment: `Demo yorum ${index + 1}: puan ${rating}/5`,
+      moderationStatus: index % 3 === 0 ? "rejected" : "approved",
+      isHidden: index % 4 === 0,
     };
   });
+}
+
+function buildCoupons() {
+  const now = Date.now();
+  return [
+    {
+      code: "WELCOME10",
+      description: "Yeni kullanici indirimi",
+      discountType: "percentage",
+      discountValue: 10,
+      minOrderAmount: 250,
+      usageLimit: 500,
+      usedCount: 42,
+      startsAt: new Date(now - 7 * 24 * 60 * 60 * 1000),
+      expiresAt: new Date(now + 30 * 24 * 60 * 60 * 1000),
+      isActive: true,
+    },
+    {
+      code: "FIX150",
+      description: "Sabit tutar indirimi",
+      discountType: "fixed",
+      discountValue: 150,
+      minOrderAmount: 1000,
+      maxDiscountAmount: null,
+      usageLimit: 200,
+      usedCount: 12,
+      startsAt: new Date(now - 2 * 24 * 60 * 60 * 1000),
+      expiresAt: new Date(now + 15 * 24 * 60 * 60 * 1000),
+      isActive: true,
+    },
+    {
+      code: "EXPIRED25",
+      description: "Suresi gecmis kampanya",
+      discountType: "percentage",
+      discountValue: 25,
+      minOrderAmount: 500,
+      usageLimit: 100,
+      usedCount: 100,
+      startsAt: new Date(now - 90 * 24 * 60 * 60 * 1000),
+      expiresAt: new Date(now - 30 * 24 * 60 * 60 * 1000),
+      isActive: false,
+    },
+  ];
+}
+
+function buildStoreSettings() {
+  return {
+    storeName: "Nexora",
+    supportEmail: "support@nexora.com",
+    supportPhone: "+90 212 000 00 00",
+    currency: "TRY",
+    maintenanceMode: false,
+    allowGuestCheckout: true,
+    lowStockThreshold: 12,
+  };
+}
+
+function buildSupportMessages(users) {
+  const admin = users.find((u) => u.role === "admin");
+  const normalUsers = users.filter((u) => u.role === "user");
+  return normalUsers.map((user, index) => ({
+    name: `${user.firstName} ${user.lastName}`.trim(),
+    email: user.email,
+    category: ["siparis", "urun", "teknik", "diger"][index % 4],
+    subject: `Destek Talebi #${index + 1}`,
+    message: `Merhaba, test amacli destek mesaji ${index + 1}.`,
+    source: "support",
+    adminStatus: ["open", "in_progress", "resolved"][index % 3],
+    resolvedAt: index % 3 === 2 ? new Date() : null,
+    resolvedBy: index % 3 === 2 ? admin?._id || null : null,
+  }));
+}
+
+function buildNotifications(users) {
+  const normalUsers = users.filter((u) => u.role === "user");
+  const types = ["order", "security", "promotion", "system"];
+  const payload = [];
+  normalUsers.forEach((user, idx) => {
+    types.forEach((type, i) => {
+      payload.push({
+        user: user._id,
+        type,
+        title: `${type.toUpperCase()} bildirimi`,
+        message: `Demo ${type} bildirimi ${idx + 1}-${i + 1}`,
+        isRead: i % 2 === 0,
+        readAt: i % 2 === 0 ? new Date() : null,
+        metadata: { seed: true, index: `${idx}-${i}` },
+      });
+    });
+  });
+  return payload;
+}
+
+function buildPaymentMethods(users) {
+  const normalUsers = users.filter((u) => u.role === "user");
+  return normalUsers.flatMap((user, idx) => [
+    {
+      user: user._id,
+      provider: "mock",
+      methodType: "card",
+      holderName: `${user.firstName} ${user.lastName}`.trim(),
+      brand: "VISA",
+      last4: `${(1111 + idx).toString().slice(-4)}`,
+      expiryMonth: 12,
+      expiryYear: 2030,
+      tokenRef: `seed-token-${idx}-1`,
+      isDefault: true,
+      isActive: true,
+    },
+    {
+      user: user._id,
+      provider: "mock",
+      methodType: "bank_transfer",
+      holderName: `${user.firstName} ${user.lastName}`.trim(),
+      brand: "BANK",
+      last4: `${(2222 + idx).toString().slice(-4)}`,
+      expiryMonth: 1,
+      expiryYear: 2031,
+      tokenRef: `seed-token-${idx}-2`,
+      isDefault: false,
+      isActive: true,
+    },
+  ]);
+}
+
+function buildReturns(users, orders) {
+  const normalUsers = users.filter((u) => u.role === "user");
+  const userReturns = [];
+  const statuses = ["requested", "approved", "rejected", "refunded"];
+  normalUsers.forEach((user, index) => {
+    const order = orders.find((item) => String(item.user) === String(user._id));
+    if (!order?.items?.length) return;
+    userReturns.push({
+      user: user._id,
+      order: order._id,
+      status: statuses[index % statuses.length],
+      note: "Seeder kaynakli test iade talebi",
+      resolvedAt: index % statuses.length > 0 ? new Date() : null,
+      items: [
+        {
+          orderItemId: String(order.items[0]._id || `item-${index}`),
+          quantity: 1,
+          reason: "Seeder iade testi",
+        },
+      ],
+    });
+  });
+  return userReturns;
+}
+
+function buildNewsletterSubscribers(users) {
+  const normalUsers = users.filter((u) => u.role === "user");
+  return normalUsers.map((u, index) => ({
+    email: u.email,
+    source: index % 2 === 0 ? "home" : "footer",
+  }));
 }
 
 async function addWishlistData(users, products) {
@@ -203,9 +372,23 @@ async function addWishlistData(users, products) {
 
 async function runSeeder() {
   try {
+    const args = process.argv.slice(2);
+    const force = args.includes("--force");
+    if (process.env.NODE_ENV === "production" && !force) {
+      logger.error("Seeder production ortaminda --force olmadan calistirilamaz.");
+      process.exit(1);
+    }
+
     await connectDB();
 
     await Promise.all([
+      NewsletterSubscriber.deleteMany({}),
+      ReturnRequest.deleteMany({}),
+      PaymentMethod.deleteMany({}),
+      Notification.deleteMany({}),
+      ContactMessage.deleteMany({}),
+      StoreSettings.deleteMany({}),
+      Coupon.deleteMany({}),
       Review.deleteMany({}),
       Order.deleteMany({}),
       Cart.deleteMany({}),
@@ -213,7 +396,7 @@ async function runSeeder() {
       Category.deleteMany({}),
       User.deleteMany({}),
     ]);
-    logger.info("Mevcut User, Category, Product, Cart, Order ve Review verileri temizlendi.");
+    logger.info("Tüm seed kapsamindaki koleksiyonlar temizlendi.");
 
     const createdUsers = await User.create(seedUsers);
     logger.info(`${createdUsers.length} kullanici olusturuldu.`);
@@ -242,6 +425,27 @@ async function runSeeder() {
       refreshedProducts.map((product) => Review.calcAverageRatings(product._id))
     );
     logger.info("Urun puan ve yorum metrikleri guncellendi.");
+
+    const createdCoupons = await Coupon.insertMany(buildCoupons());
+    logger.info(`${createdCoupons.length} kupon olusturuldu.`);
+
+    const settings = await StoreSettings.create(buildStoreSettings());
+    logger.info(`Magaza ayarlari olusturuldu: ${settings.storeName}`);
+
+    const createdSupportMessages = await ContactMessage.insertMany(buildSupportMessages(createdUsers));
+    logger.info(`${createdSupportMessages.length} destek mesaji olusturuldu.`);
+
+    const createdNotifications = await Notification.insertMany(buildNotifications(createdUsers));
+    logger.info(`${createdNotifications.length} bildirim olusturuldu.`);
+
+    const createdPaymentMethods = await PaymentMethod.insertMany(buildPaymentMethods(createdUsers));
+    logger.info(`${createdPaymentMethods.length} odeme yontemi olusturuldu.`);
+
+    const createdReturns = await ReturnRequest.insertMany(buildReturns(createdUsers, createdOrders));
+    logger.info(`${createdReturns.length} iade talebi olusturuldu.`);
+
+    const createdSubscribers = await NewsletterSubscriber.insertMany(buildNewsletterSubscribers(createdUsers));
+    logger.info(`${createdSubscribers.length} newsletter aboneligi olusturuldu.`);
 
     logger.info("Seeder islemi basariyla tamamlandi.");
     process.exit(0);

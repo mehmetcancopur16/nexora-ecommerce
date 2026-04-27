@@ -1,6 +1,6 @@
 import { motion as Motion } from "framer-motion"
 import { Loader2, RefreshCw, Search, Shield, Users } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 import axiosInstance from "../../api/axiosInstance"
 
@@ -11,7 +11,7 @@ function AdminUsers() {
   const [filters, setFilters] = useState({ page: 1, limit: 12, search: "" })
   const [pagination, setPagination] = useState({ total: 0, totalPages: 1 })
 
-  const fetchUsers = async ({ silent = false } = {}) => {
+  const fetchUsers = useCallback(async ({ silent = false } = {}) => {
     if (silent) setIsRefreshing(true)
     else setIsLoading(true)
     try {
@@ -33,11 +33,11 @@ function AdminUsers() {
       setIsLoading(false)
       setIsRefreshing(false)
     }
-  }
+  }, [filters.limit, filters.page, filters.search])
 
   useEffect(() => {
     fetchUsers()
-  }, [filters.page, filters.limit, filters.search])
+  }, [fetchUsers])
 
   const handleUpdate = async (userId, payload) => {
     try {

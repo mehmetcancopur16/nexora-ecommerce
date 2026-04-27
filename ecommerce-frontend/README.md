@@ -1,64 +1,61 @@
 # Nexora Frontend
 
-Bu paket, Nexora e-ticaret uygulamasinin kullanici ve admin arayuzunu icerir.
+Nexora frontend, storefront + profile + admin panel UI katmanini icerir.
 
-## Teknolojiler
+## Stack
 
 - React
 - Vite
-- Zustand tabanli store yapisi
-- Axios ile API haberlesmesi
+- React Router
+- Zustand
+- Axios
+- Framer Motion + Lucide icons
 
-## Kurulum
+## Setup
 
 ```bash
 npm install
-```
-
-## Ortam Degiskenleri
-
-`.env.example` dosyasini `.env` olarak kopyalayin:
-
-```bash
 cp .env.example .env
 ```
 
-Kullanilan degiskenler:
+## Environment Variables
 
-- `VITE_API_BASE_URL` (varsayilan fallback: `http://localhost:5001/api`)
-- `VITE_AUTH_LOGIN_PATH` (opsiyonel, varsayilan `/auth/login`)
-- `VITE_AUTH_REGISTER_PATH` (opsiyonel, varsayilan `/auth/register`)
+- `VITE_API_BASE_URL=http://localhost:5000/api`
+- `VITE_AUTH_LOGIN_PATH=/auth/login` (optional override)
+- `VITE_AUTH_REGISTER_PATH=/auth/register` (optional override)
 
-## Komutlar
-
-- Gelistirme modu:
+## Scripts
 
 ```bash
 npm run dev
-```
-
-- Production build:
-
-```bash
 npm run build
-```
-
-- Preview:
-
-```bash
 npm run preview
-```
-
-- Lint:
-
-```bash
 npm run lint
 ```
 
-## Calisma URL'i
+## Runtime URLs
 
-Varsayilan Vite adresi:
+- Frontend dev server: `http://localhost:5173`
+- Expected backend API base: `http://localhost:5000/api`
 
-- `http://localhost:5173`
+## Architecture Summary
 
-Backend ayakta degilse urun listesi, auth ve sepet akislari API hatasi verir. Kok dizinden `npm run dev` kullanarak frontend ve backend'i birlikte baslatmaniz onerilir.
+- API communication is centralized via `src/api/axiosInstance.js`.
+- Authentication state is managed by Zustand stores.
+- Admin routes are role-protected with route guards.
+- UI uses shared common components and motion patterns for consistency.
+
+## Quality Status
+
+- Lint and production build are the main automated checks.
+- Full automated E2E suite is not yet configured in this package.
+- Project-level smoke tests are run with seeded backend data.
+
+## Troubleshooting
+
+- API requests failing:
+  - Verify backend is running and `VITE_API_BASE_URL` matches port `5000`.
+- Auth redirect loops:
+  - Ensure token storage is valid; clear local/session storage and login again.
+- Env updates not reflected:
+  - Restart Vite after `.env` changes.

@@ -1,6 +1,6 @@
 import { motion as Motion } from "framer-motion"
 import { Loader2, RefreshCw, Search, ShoppingBag } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 import axiosInstance from "../../api/axiosInstance"
 
@@ -20,7 +20,7 @@ function AdminOrders() {
   })
   const [pagination, setPagination] = useState({ total: 0, totalPages: 1 })
 
-  const fetchOrders = async ({ silent = false } = {}) => {
+  const fetchOrders = useCallback(async ({ silent = false } = {}) => {
     if (silent) setIsRefreshing(true)
     else setIsLoading(true)
     try {
@@ -44,11 +44,11 @@ function AdminOrders() {
       setIsLoading(false)
       setIsRefreshing(false)
     }
-  }
+  }, [filters.limit, filters.page, filters.paymentStatus, filters.search, filters.status])
 
   useEffect(() => {
     fetchOrders()
-  }, [filters.page, filters.limit, filters.search, filters.status, filters.paymentStatus])
+  }, [fetchOrders])
 
   const handleStatusUpdate = async (orderId, status) => {
     try {

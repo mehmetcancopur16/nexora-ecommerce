@@ -22,12 +22,28 @@ const adminRoutes = require("./routes/admin.routes");
 const newsletterRoutes = require("./routes/newsletter.routes");
 const contactRoutes = require("./routes/contact.routes");
 const authRoutes = require("./routes/auth.routes");
+const settingsRoutes = require("./routes/settings.routes");
 const paymentMethodRoutes = require("./routes/paymentMethod.routes");
 const notificationRoutes = require("./routes/notification.routes");
 const returnRoutes = require("./routes/return.routes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const defaultAllowedOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
+const allowedOrigins = (process.env.CORS_ORIGINS || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const corsOriginList = allowedOrigins.length ? allowedOrigins : defaultAllowedOrigins;
+const corsOptions = {
+  origin(origin, callback) {
+    if (!origin || corsOriginList.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS origin not allowed: ${origin}`));
+  },
+  credentials: true,
+};
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: process.env.NODE_ENV === "production" ? 600 : 3000,
@@ -41,7 +57,7 @@ const globalLimiter = rateLimit({
 });
 
 app.use(helmet());
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(morgan("dev"));
 app.use((req, _res, next) => {
   ["body", "params", "headers", "query"].forEach((key) => {
@@ -113,6 +129,7 @@ app.get("/api-docs.json", (_req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/settings", settingsRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);

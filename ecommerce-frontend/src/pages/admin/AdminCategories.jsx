@@ -1,6 +1,6 @@
 import { motion as Motion } from "framer-motion"
 import { FolderTree, Loader2, RefreshCw, Search } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 import axiosInstance from "../../api/axiosInstance"
 
@@ -16,7 +16,7 @@ function AdminCategories() {
   const [filters, setFilters] = useState({ page: 1, limit: 10, search: "" })
   const [pagination, setPagination] = useState({ total: 0, totalPages: 1 })
 
-  const fetchItems = async ({ silent = false } = {}) => {
+  const fetchItems = useCallback(async ({ silent = false } = {}) => {
     if (silent) setIsRefreshing(true)
     else setIsLoading(true)
     try {
@@ -38,11 +38,11 @@ function AdminCategories() {
       setIsLoading(false)
       setIsRefreshing(false)
     }
-  }
+  }, [filters.limit, filters.page, filters.search])
 
   useEffect(() => {
     fetchItems()
-  }, [filters.page, filters.limit, filters.search])
+  }, [fetchItems])
 
   const openCreate = () => {
     setEditing(null)

@@ -7,6 +7,8 @@
     "server": "cd ecommerce-backend && npm run dev",
     "client": "cd ecommerce-frontend && npm run dev",
     "seed": "cd ecommerce-backend && npm run seed",
+    "seed:e2e": "cd ecommerce-backend && npm run seed:e2e",
+    "seed:safe": "cd ecommerce-backend && npm run seed:safe",
     "dev": "concurrently -k --names BACKEND,FRONTEND --prefix-colors blue,magenta \"npm run server\" \"npm run client\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

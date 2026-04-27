@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
-    "seed": "node src/utils/seeder.js",
+    "seed": "node src/utils/seeder.js --force",
+    "seed:e2e": "node src/utils/seeder.js --force",
+    "seed:safe": "node src/utils/seeder.js",
     "backfill:product-images": "node src/utils/backfillProductImages.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -6,6 +6,7 @@ import Container from "../components/common/Container"
 import SupportContactForm from "../components/support/SupportContactForm"
 import SupportFaq from "../components/support/SupportFaq"
 import { SUPPORT_CONTACT, SUPPORT_FAQ } from "../data/supportContent"
+import { usePublicStoreSettings } from "../hooks/usePublicStoreSettings"
 
 const quickLinks = [
   { to: "/teslimat", label: "Teslimat", icon: Package },
@@ -20,6 +21,13 @@ const trustStats = [
 ]
 
 function Support() {
+  const settings = usePublicStoreSettings()
+  const contactInfo = {
+    ...SUPPORT_CONTACT,
+    email: settings.supportEmail || SUPPORT_CONTACT.email,
+    phone: settings.supportPhone || SUPPORT_CONTACT.phone,
+  }
+
   return (
     <section className="pb-16 pt-2">
       <Container>
@@ -97,26 +105,26 @@ function Support() {
           <div className="space-y-6">
             <div className="grid gap-4 sm:grid-cols-2">
               <a
-                href={`mailto:${SUPPORT_CONTACT.email}`}
+                href={`mailto:${contactInfo.email}`}
                 className="nexora-glass flex flex-col gap-2 rounded-2xl border border-white/70 p-4 shadow-md transition hover:border-sky-200"
               >
                 <Mail className="size-5 text-nexora-primary" aria-hidden />
                 <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">E-posta</span>
-                <span className="text-sm font-medium text-nexora-text">{SUPPORT_CONTACT.email}</span>
+                <span className="text-sm font-medium text-nexora-text">{contactInfo.email}</span>
               </a>
               <div className="nexora-glass flex flex-col gap-2 rounded-2xl border border-white/70 p-4 shadow-md">
                 <Phone className="size-5 text-nexora-primary" aria-hidden />
                 <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Telefon</span>
-                <span className="text-sm font-medium text-nexora-text">{SUPPORT_CONTACT.phone}</span>
+                <span className="text-sm font-medium text-nexora-text">{contactInfo.phone}</span>
                 <span className="flex items-center gap-1 text-xs text-slate-500">
                   <Clock className="size-3.5" aria-hidden />
-                  {SUPPORT_CONTACT.hours}
+                  {contactInfo.hours}
                 </span>
               </div>
               <div className="nexora-glass flex flex-col gap-2 rounded-2xl border border-white/70 p-4 shadow-md sm:col-span-2">
                 <MapPin className="size-5 text-nexora-primary" aria-hidden />
                 <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Adres</span>
-                <span className="text-sm font-medium text-nexora-text">{SUPPORT_CONTACT.address}</span>
+                <span className="text-sm font-medium text-nexora-text">{contactInfo.address}</span>
               </div>
             </div>
 

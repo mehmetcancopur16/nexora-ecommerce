@@ -1,4 +1,4 @@
-import { motion, useInView } from "framer-motion"
+import { motion as Motion, useInView } from "framer-motion"
 import { useEffect, useRef, useState } from "react"
 import Container from "../common/Container"
 
@@ -32,7 +32,7 @@ function StatItem({ stat, active }) {
     stat.value >= 1000 ? `${(displayed / 1000).toFixed(displayed >= stat.value ? 0 : 1)}K` : displayed
 
   return (
-    <motion.div
+    <Motion.div
       className="flex flex-col items-center gap-1 px-4 py-5"
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -44,7 +44,7 @@ function StatItem({ stat, active }) {
         {stat.suffix}
       </span>
       <span className="text-xs font-semibold uppercase tracking-[0.18em] text-nexora-muted">{stat.label}</span>
-    </motion.div>
+    </Motion.div>
   )
 }
 

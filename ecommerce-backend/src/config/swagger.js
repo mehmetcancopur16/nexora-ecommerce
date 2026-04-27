@@ -50,7 +50,9 @@ function buildSwaggerSpec() {
           ProfileUpdate: {
             type: "object",
             properties: {
-              name: { type: "string", example: "Mehmet Can" },
+              firstName: { type: "string", example: "Mehmet" },
+              lastName: { type: "string", example: "Can" },
+              phone: { type: "string", example: "+905551112233" },
               address: { $ref: "#/components/schemas/Address" },
             },
           },
@@ -59,7 +61,11 @@ function buildSwaggerSpec() {
             required: ["currentPassword", "newPassword"],
             properties: {
               currentPassword: { type: "string", example: "CurrentPass123" },
-              newPassword: { type: "string", example: "NewSecurePass123" },
+              newPassword: {
+                type: "string",
+                example: "NewSecurePass123",
+                description: "En az 8 karakter, en az 1 büyük harf, 1 küçük harf, 1 rakam",
+              },
             },
           },
           AdminUserUpdate: {
@@ -196,9 +202,43 @@ function buildSwaggerSpec() {
           },
           CreateOrderBody: {
             type: "object",
-            required: ["shippingAddress"],
+            required: ["shippingAddress", "customer"],
             properties: {
               shippingAddress: { $ref: "#/components/schemas/ShippingAddress" },
+              customer: {
+                type: "object",
+                required: ["firstName", "lastName", "email", "phone"],
+                properties: {
+                  firstName: { type: "string" },
+                  lastName: { type: "string" },
+                  email: { type: "string", format: "email" },
+                  phone: { type: "string" },
+                },
+              },
+              paymentMethod: {
+                type: "string",
+                enum: ["mock_card", "bank_transfer", "cash_on_delivery"],
+                default: "mock_card",
+              },
+            },
+          },
+          PayMockOrderBody: {
+            type: "object",
+            required: ["paymentMethod"],
+            properties: {
+              paymentMethod: {
+                type: "string",
+                enum: ["mock_card", "bank_transfer", "cash_on_delivery"],
+              },
+              mockCard: {
+                type: "object",
+                properties: {
+                  holderName: { type: "string", example: "MEHMET CAN" },
+                  number: { type: "string", example: "4111111111111111" },
+                  expiry: { type: "string", example: "12/30" },
+                  cvc: { type: "string", example: "123" },
+                },
+              },
             },
           },
           OrderStatusUpdate: {
@@ -286,6 +326,78 @@ function buildSwaggerSpec() {
                 type: "array",
                 items: { $ref: "#/components/schemas/LowStockProduct" },
               },
+              activeCouponCount: { type: "integer", example: 6 },
+              openSupportCount: { type: "integer", example: 4 },
+              lowStockThreshold: { type: "integer", example: 10 },
+            },
+          },
+          AddressCreate: {
+            type: "object",
+            required: ["city", "district", "postalCode", "openAddress"],
+            properties: {
+              label: { type: "string", example: "Ev" },
+              city: { type: "string", example: "İstanbul" },
+              district: { type: "string", example: "Kadıköy" },
+              postalCode: { type: "string", example: "34000" },
+              openAddress: { type: "string", example: "Rıhtım Cad. No:12" },
+              country: { type: "string", example: "Türkiye" },
+              isDefault: { type: "boolean", example: false },
+              street: { type: "string", example: "Rıhtım Cad." },
+              zip: { type: "string", example: "34000" },
+            },
+          },
+          AddressUpdate: {
+            allOf: [{ $ref: "#/components/schemas/AddressCreate" }],
+          },
+          NotificationPreferences: {
+            type: "object",
+            properties: {
+              orderUpdates: { type: "boolean", example: true },
+              promotions: { type: "boolean", example: false },
+              securityAlerts: { type: "boolean", example: true },
+              productNews: { type: "boolean", example: false },
+            },
+          },
+          PaymentMethodCreate: {
+            type: "object",
+            required: ["provider", "tokenRef", "last4", "expiryMonth", "expiryYear"],
+            properties: {
+              provider: { type: "string", enum: ["mock"] },
+              tokenRef: { type: "string", example: "card_tok_123" },
+              brand: { type: "string", example: "VISA" },
+              last4: { type: "string", example: "1111" },
+              holderName: { type: "string", example: "MEHMET CAN" },
+              expiryMonth: { type: "integer", example: 12 },
+              expiryYear: { type: "integer", example: 2030 },
+              isDefault: { type: "boolean", example: false },
+            },
+          },
+          ReturnRequestCreate: {
+            type: "object",
+            required: ["orderId", "items"],
+            properties: {
+              orderId: { type: "string" },
+              note: { type: "string", example: "Paket teslimde hasarlıydı" },
+              items: {
+                type: "array",
+                items: {
+                  type: "object",
+                  required: ["orderItemId", "quantity", "reason"],
+                  properties: {
+                    orderItemId: { type: "string" },
+                    quantity: { type: "integer", minimum: 1, example: 1 },
+                    reason: { type: "string", example: "Kutu ezik" },
+                  },
+                },
+              },
+            },
+          },
+          ReturnStatusUpdate: {
+            type: "object",
+            required: ["status"],
+            properties: {
+              status: { type: "string", enum: ["requested", "approved", "rejected", "refunded"] },
+              adminNote: { type: "string" },
             },
           },
           Pagination: {

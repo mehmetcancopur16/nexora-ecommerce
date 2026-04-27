@@ -4,10 +4,21 @@ import { Link } from "react-router"
 import { toast } from "sonner"
 import { useState } from "react"
 import { useNewsletterSubscribe } from "../../hooks/useNewsletterSubscribe"
+import Button from "../common/Button"
+import { usePublicStoreSettings } from "../../hooks/usePublicStoreSettings"
+import { useAuthStore } from "../../store/authStore"
 
 const MotionDiv = motion.div
 
-const quickLinks = [
+const guestQuickLinks = [
+  { label: "Ana Sayfa", to: "/" },
+  { label: "Ürünler", to: "/products" },
+  { label: "Sepet", to: "/cart" },
+  { label: "Giriş Yap", to: "/login" },
+  { label: "Hesap Oluştur", to: "/register" },
+]
+
+const memberQuickLinks = [
   { label: "Ana Sayfa", to: "/" },
   { label: "Ürünler", to: "/products" },
   { label: "Sepet", to: "/cart" },
@@ -29,41 +40,22 @@ const socialLinks = [
   {
     href: "https://www.facebook.com/",
     label: "Facebook",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="size-4" aria-hidden="true">
-        <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878V14.89h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" />
-      </svg>
-    ),
+    icon: <span className="text-xs font-bold">f</span>,
   },
   {
     href: "https://www.instagram.com/",
     label: "Instagram",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-4" aria-hidden="true">
-        <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-        <circle cx="12" cy="12" r="4.5" />
-        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
-      </svg>
-    ),
+    icon: <span className="text-xs font-bold">ig</span>,
   },
   {
     href: "https://www.linkedin.com/",
     label: "LinkedIn",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="size-4" aria-hidden="true">
-        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z" />
-        <circle cx="4" cy="4" r="2" />
-      </svg>
-    ),
+    icon: <span className="text-xs font-bold">in</span>,
   },
   {
     href: "https://www.x.com/",
     label: "X (Twitter)",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="size-4" aria-hidden="true">
-        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-      </svg>
-    ),
+    icon: <span className="text-xs font-bold">x</span>,
   },
 ]
 
@@ -86,8 +78,11 @@ const columnVariants = {
 }
 
 function Footer() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
+  const settings = usePublicStoreSettings()
   const [email, setEmail] = useState("")
   const { subscribe, loading } = useNewsletterSubscribe("footer")
+  const quickLinks = isAuthenticated ? memberQuickLinks : guestQuickLinks
 
   const handleNewsletter = async (event) => {
     event.preventDefault()
@@ -191,19 +186,19 @@ function Footer() {
               <p className="flex items-center gap-2">
                 <Phone size={16} className="shrink-0 text-nexora-primary" />
                 <a
-                  href="tel:+902120000000"
+                  href={`tel:${(settings.supportPhone || "+90 212 000 00 00").replace(/\s+/g, "")}`}
                   className="rounded hover:text-nexora-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nexora-primary"
                 >
-                  +90 212 000 00 00
+                  {settings.supportPhone || "+90 212 000 00 00"}
                 </a>
               </p>
               <p className="flex items-center gap-2">
                 <Mail size={16} className="shrink-0 text-nexora-primary" />
                 <a
-                  href="mailto:hello@nexora.com"
+                  href={`mailto:${settings.supportEmail || "hello@nexora.com"}`}
                   className="rounded hover:text-nexora-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nexora-primary"
                 >
-                  hello@nexora.com
+                  {settings.supportEmail || "hello@nexora.com"}
                 </a>
               </p>
             </div>
@@ -241,14 +236,10 @@ function Footer() {
                 required
                 className="min-h-12 w-full rounded-xl border border-slate-600 bg-white/10 px-4 text-sm text-white placeholder:text-slate-400 transition focus:border-white focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/30"
               />
-              <button
-                type="submit"
-                disabled={loading}
-                className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-6 text-sm font-semibold text-slate-900 transition hover:bg-slate-100 disabled:opacity-60"
-              >
+              <Button type="submit" disabled={loading} variant="light" className="min-h-12 shrink-0 gap-2 px-6 text-slate-900">
                 {loading ? "Gönderiliyor..." : "Kaydol"}
                 {!loading && <Send size={16} />}
-              </button>
+              </Button>
             </form>
           </div>
         </MotionDiv>

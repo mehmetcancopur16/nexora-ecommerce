@@ -576,6 +576,23 @@ exports.getStoreSettings = asyncHandler(async (_req, res) => {
   res.json({ success: true, data: settings });
 });
 
+exports.getPublicStoreSettings = asyncHandler(async (_req, res) => {
+  let settings = await StoreSettings.findOne().lean();
+  if (!settings) {
+    settings = (await StoreSettings.create({})).toObject();
+  }
+  res.json({
+    success: true,
+    data: {
+      storeName: settings.storeName || "Nexora",
+      supportEmail: settings.supportEmail || "hello@nexora.com",
+      supportPhone: settings.supportPhone || "+90 212 000 00 00",
+      currency: settings.currency || "TRY",
+      maintenanceMode: Boolean(settings.maintenanceMode),
+    },
+  });
+});
+
 exports.updateStoreSettings = asyncHandler(async (req, res) => {
   let settings = await StoreSettings.findOne();
   if (!settings) {

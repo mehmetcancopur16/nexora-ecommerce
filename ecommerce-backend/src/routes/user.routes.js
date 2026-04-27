@@ -205,19 +205,127 @@ router.patch(
   userController.toggleWishlist
 );
 
+/**
+ * @openapi
+ * /api/users/addresses:
+ *   get:
+ *     tags: [Users]
+ *     summary: Kullanıcının kayıtlı adreslerini listeler
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Başarılı
+ *       401:
+ *         description: Yetkisiz
+ */
 router.get("/addresses", userController.getAddresses);
+/**
+ * @openapi
+ * /api/users/addresses:
+ *   post:
+ *     tags: [Users]
+ *     summary: Yeni adres ekler
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AddressCreate'
+ *     responses:
+ *       201:
+ *         description: Adres eklendi
+ *       400:
+ *         description: Geçersiz veri
+ *       401:
+ *         description: Yetkisiz
+ */
 router.post("/addresses", validateBody(createAddressSchema), userController.addAddress);
+/**
+ * @openapi
+ * /api/users/addresses/{addressId}:
+ *   patch:
+ *     tags: [Users]
+ *     summary: Adres bilgilerini günceller
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: addressId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AddressUpdate'
+ *     responses:
+ *       200:
+ *         description: Adres güncellendi
+ *       401:
+ *         description: Yetkisiz
+ *       404:
+ *         description: Adres bulunamadı
+ */
 router.patch(
   "/addresses/:addressId",
   validateParams(addressIdParamSchema),
   validateBody(updateAddressSchema),
   userController.updateAddress
 );
+/**
+ * @openapi
+ * /api/users/addresses/{addressId}:
+ *   delete:
+ *     tags: [Users]
+ *     summary: Adres siler
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: addressId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Adres silindi
+ *       401:
+ *         description: Yetkisiz
+ *       404:
+ *         description: Adres bulunamadı
+ */
 router.delete(
   "/addresses/:addressId",
   validateParams(addressIdParamSchema),
   userController.deleteAddress
 );
+/**
+ * @openapi
+ * /api/users/addresses/{addressId}/default:
+ *   patch:
+ *     tags: [Users]
+ *     summary: Varsayılan adresi günceller
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: addressId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Varsayılan adres güncellendi
+ *       401:
+ *         description: Yetkisiz
+ *       404:
+ *         description: Adres bulunamadı
+ */
 router.patch(
   "/addresses/:addressId/default",
   validateParams(addressIdParamSchema),

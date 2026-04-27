@@ -1,10 +1,8 @@
 import { AnimatePresence, motion as Motion } from "framer-motion"
 import { Funnel, Loader2, PackageSearch, Plus, RefreshCw, Search } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
-import axiosInstance from "../../api/axiosInstance"
-
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api").replace(/\/api$/, "")
+import axiosInstance, { API_BASE_URL } from "../../api/axiosInstance"
 
 const emptyForm = {
   name: "",
@@ -19,7 +17,7 @@ const emptyForm = {
 const getImageSource = (imagePath) => {
   if (!imagePath) return "https://placehold.co/100x100/e2e8f0/64748b?text=Nexora"
   if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) return imagePath
-  return `${API_BASE_URL}${imagePath}`
+  return `${API_BASE_URL.replace(/\/api$/, "")}${imagePath}`
 }
 
 function AdminProducts() {
@@ -42,7 +40,7 @@ function AdminProducts() {
   })
   const [pagination, setPagination] = useState({ total: 0, totalPages: 1 })
 
-  const fetchProducts = async ({ silent = false } = {}) => {
+  const fetchProducts = useCallback(async ({ silent = false } = {}) => {
     if (silent) setIsRefreshing(true)
     else setIsLoading(true)
     try {
@@ -69,21 +67,21 @@ function AdminProducts() {
       setIsLoading(false)
       setIsRefreshing(false)
     }
-  }
+  }, [filters.category, filters.limit, filters.page, filters.search, filters.sort, filters.status])
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await axiosInstance.get("/categories")
       setCategories(response?.data?.data || [])
     } catch {
       setCategories([])
     }
-  }
+  }, [])
 
   useEffect(() => {
     fetchProducts()
     fetchCategories()
-  }, [filters.page, filters.limit, filters.sort, filters.status, filters.search, filters.category])
+  }, [fetchProducts, fetchCategories])
 
   const currentCategoryLabel = useMemo(
     () => categories.find((item) => item._id === filters.category)?.name || "Tum kategoriler",

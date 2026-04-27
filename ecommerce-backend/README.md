@@ -1,65 +1,81 @@
 # Nexora Backend
 
-Bu servis, Nexora e-ticaret platformunun REST API katmanidir. JWT tabanli kimlik dogrulama, urun/siparis/sepet yonetimi ve admin ozelliklerini icerir.
+Nexora backend, platformun REST API katmanidir. Kimlik dogrulama, e-commerce domain akislari, admin islemleri ve raporlama burada yonetilir.
 
-## Teknolojiler
+## Stack
 
-- Node.js + Express
+- Node.js (CommonJS)
+- Express
 - MongoDB + Mongoose
-- JWT Auth
-- Swagger (`swagger-jsdoc`, `swagger-ui-express`)
+- Zod request validation
+- JWT auth + role-based access
+- Swagger/OpenAPI (`swagger-jsdoc`, `swagger-ui-express`)
 
-## Kurulum
+## Setup
 
 ```bash
 npm install
-```
-
-## Ortam Degiskenleri
-
-`.env.example` dosyasini `.env` olarak kopyalayin:
-
-```bash
 cp .env.example .env
 ```
 
-Zorunlu alanlar:
+## Environment Variables
+
+Minimum required:
 
 - `PORT=5000`
 - `MONGO_URI=mongodb://127.0.0.1:27017/nexora`
 - `NODE_ENV=development`
-- `JWT_SECRET=...`
+- `JWT_SECRET=<strong-secret>`
+- `JWT_EXPIRES_IN=7d`
+- `CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173`
 
-## Komutlar
-
-- Gelistirme:
-
-```bash
-npm run dev
-```
-
-- Normal baslatma:
+## Scripts
 
 ```bash
-npm start
+npm run dev                    # nodemon development server
+npm start                      # production-like start
+npm run seed                   # destructive e2e seed (--force)
+npm run seed:e2e               # same as seed
+npm run seed:safe              # guarded mode (no --force)
+npm run backfill:product-images
 ```
 
-- Demo veri yukleme:
+## API and Docs
 
-```bash
-npm run seed
-```
-
-## HTTP Endpointleri
-
-- API tabani: `http://localhost:5000/api`
+- Base URL: `http://localhost:5000/api`
 - Health: `http://localhost:5000/api/health`
 - Swagger UI: `http://localhost:5000/api-docs`
 - OpenAPI JSON: `http://localhost:5000/api-docs.json`
 
-Detayli endpoint aciklamalari icin `API.md` dosyasina bakin.
+Additional endpoint reference: `API.md`
 
-## Notlar
+## Domain Modules
 
-- Seeder calistiginda ilgili koleksiyonlar sifirlanir.
-- `JWT_SECRET` degisirse mevcut tokenlar gecersiz olur.
+- Auth / Users / Addresses / Password flows
+- Categories / Products / Reviews
+- Cart / Orders / Coupons
+- Admin (dashboard, reports, settings, support inbox)
+- Notifications / Payment methods / Returns
+- Contact and Newsletter
+
+## Testing and Quality Status
+
+- Lint/test scripts are not yet full automated regression suites.
+- Current quality gate relies on validation middleware, API smoke checks, and frontend build/lint checks.
+- Seeder-enabled dataset is used for end-to-end manual verification.
+
+## Deployment Notes
+
+- Configure production-safe CORS origins.
+- Set secure `JWT_SECRET` + short expiry policy based on environment.
+- Keep Mongo connection string and app secrets outside repository.
+- Expose `/api-docs` only in trusted environments if needed.
+
+## Troubleshooting
+
+- `MONGO_URI tanimli degil`:
+  - Ensure `.env` exists and contains `MONGO_URI`.
+- Token/auth issues:
+  - `JWT_SECRET` changes invalidate old tokens.
+- Seeder safety:
+  - Use destructive seeding only on non-production databases.

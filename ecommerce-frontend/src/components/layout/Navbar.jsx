@@ -1,10 +1,10 @@
 import { AnimatePresence, motion } from "framer-motion"
 import {
-  AddressBook,
   Bell,
   CheckCheck,
   Heart,
   LayoutGrid,
+  MapPin,
   LifeBuoy,
   LogOut,
   Menu,
@@ -44,10 +44,10 @@ function getInitials(user) {
 }
 
 const notifTypeIcon = {
-  order: "📦",
-  security: "🔒",
-  promotion: "🎁",
-  system: "🔔",
+  order: Package,
+  security: Shield,
+  promotion: Sparkles,
+  system: Bell,
 }
 
 function NotificationDropdown({ onClose }) {
@@ -102,13 +102,18 @@ function NotificationDropdown({ onClose }) {
           </div>
         ) : (
           recent.map((n) => (
+            (() => {
+              const NotificationIcon = notifTypeIcon[n.type] || Bell
+              return (
             <button
               key={n._id}
               type="button"
               onClick={() => markRead(n._id)}
               className={`flex w-full gap-3 px-4 py-3 text-left transition hover:bg-slate-50 ${!n.isRead ? "bg-sky-50/60" : ""}`}
             >
-              <span className="mt-0.5 text-base">{notifTypeIcon[n.type] || "🔔"}</span>
+              <span className="mt-0.5 inline-flex size-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                <NotificationIcon className="size-4" />
+              </span>
               <div className="min-w-0 flex-1">
                 <p className={`text-sm font-medium leading-tight ${!n.isRead ? "text-slate-900" : "text-slate-600"}`}>
                   {n.title}
@@ -117,6 +122,8 @@ function NotificationDropdown({ onClose }) {
               </div>
               {!n.isRead && <span className="mt-1.5 size-2 shrink-0 rounded-full bg-nexora-primary" />}
             </button>
+              )
+            })()
           ))
         )}
       </div>
@@ -141,7 +148,7 @@ function ProfileDropdown({ user, isAdmin, logout, onClose }) {
     { label: "Profilim", to: "/profile", icon: User },
     { label: "Siparişlerim", to: "/profile/orders", icon: Package },
     { label: "Favorilerim", to: "/profile/wishlist", icon: Heart },
-    { label: "Adreslerim", to: "/profile/addresses", icon: AddressBook },
+    { label: "Adreslerim", to: "/profile/addresses", icon: MapPin },
   ]
 
   return (
@@ -338,6 +345,19 @@ function Navbar() {
           </button>
 
           <nav className="hidden items-center gap-1.5 md:flex" aria-label="Hesap ve sepet">
+            {isAuthenticated && isAdmin && (
+              <NavLink
+                to="/admin"
+                className={({ isActive }) =>
+                  `${linkBase} ${isActive ? "bg-amber-100 text-amber-900 shadow-sm" : "bg-amber-50 text-amber-800 hover:bg-amber-100"}`
+                }
+                title="Admin Paneli"
+              >
+                <Shield size={16} />
+                <span className="hidden xl:inline">Admin Paneli</span>
+              </NavLink>
+            )}
+
             {/* Wishlist */}
             {isAuthenticated && (
               <NavLink to="/profile/wishlist" className={navClass} title="İstek Listesi">

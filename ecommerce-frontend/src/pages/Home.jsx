@@ -53,7 +53,9 @@ function Home() {
   const featuredCategories = useMemo(() => categories.slice(0, 4), [categories])
 
   return (
-    <div className="space-y-4 pb-8">
+    <div className="relative space-y-4 overflow-hidden pb-10">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_12%_18%,rgba(14,165,233,0.11),transparent_52%)]" aria-hidden="true" />
+      <div className="pointer-events-none absolute inset-x-0 top-48 h-80 bg-[radial-gradient(circle_at_88%_22%,rgba(244,63,94,0.1),transparent_52%)]" aria-hidden="true" />
       <HomeHero />
       <HomeStatsBar />
       <HomeTrustStrip />

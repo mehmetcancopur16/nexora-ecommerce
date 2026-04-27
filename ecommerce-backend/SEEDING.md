@@ -1,16 +1,27 @@
-# Seeder Rehberi
+# Seeder Guide
 
-Seeder, gelistirme ortami icin kapsamli ve iliskili demo veri uretir.
+Seeder, development/test ortaminda tum kritik alanlari kapsayan bir E2E veri seti olusturur.
 
-## Komut
+## Commands
 
 ```bash
+# Destructive full dataset seed
 npm run seed
+
+# Same as seed, explicit naming
+npm run seed:e2e
+
+# Protected mode (production ortaminda --force yoksa fail olur)
+npm run seed:safe
 ```
 
-## Onemli Uyari
+## Safety
 
-Seeder calistiginda asagidaki koleksiyonlar temizlenir ve yeniden olusturulur:
+- Seeder destruktiftir: hedef koleksiyonlari temizleyip yeniden olusturur.
+- `NODE_ENV=production` durumunda `--force` yoksa seeder calismaz.
+- Canli veritabani yerine sadece development/staging test DB kullanin.
+
+## Collections Reset
 
 - Users
 - Categories
@@ -18,28 +29,40 @@ Seeder calistiginda asagidaki koleksiyonlar temizlenir ve yeniden olusturulur:
 - Carts
 - Orders
 - Reviews
+- Coupons
+- StoreSettings
+- ContactMessages
+- Notifications
+- PaymentMethods
+- ReturnRequests
+- NewsletterSubscribers
 
-Bu nedenle sadece gelistirme/test veritabaninda calistiriniz.
+## Seeded Dataset Coverage
 
-## Uretilen Veri Kapsami
+- **Auth/Users**
+  - 1 admin + coklu user
+  - profile/address/phone verileri
+  - wishlist referanslari
+- **Catalog**
+  - coklu kategori + aktif urunler
+  - dusuk stok urunleri (dashboard alarm testleri)
+- **Commerce**
+  - carts
+  - farkli order status dagilimlari (`pending`, `processing`, `shipped`, `delivered`, `cancelled`)
+  - farkli payment status ve method dagilimlari
+- **Reviews**
+  - farkli rating dagilimlari
+  - moderation status + hidden varyasyonlari
+  - product rating metriklerinin tekrar hesaplanmasi
+- **Admin Business Data**
+  - coupons (active/inactive/expired)
+  - store settings
+  - support inbox message statuses
+  - notifications (read/unread, type dagilimi)
+  - payment methods (default + additional)
+  - return requests (requested/approved/rejected/refunded)
+  - newsletter subscribers (home/footer source)
 
-- Roller:
-  - 1 admin kullanici
-  - birden fazla normal kullanici
-- Kategoriler ve urunler:
-  - farkli stok seviyeleri
-  - dusuk stok urunler (dashboard testleri icin)
-- Sepetler:
-  - farkli kullanicilara bagli urun/adet kombinasyonlari
-- Siparisler:
-  - `pending`, `processing`, `shipped`, `delivered`, `cancelled` durumlarinda dagilim
-  - order item fiyat snapshot yapisi
-- Yorumlar:
-  - farkli puan dagilimlari (1-5)
-  - urun ortalama puan ve yorum sayisi hesaplarini tetikleyecek veri
-- Wishlist:
-  - kullanici dokumanlarinda urun referanslari
+## Expected Outcome
 
-## Beklenen Sonuc
-
-Seeder tamamlandiginda terminalde olusturulan kayit sayilari loglanir ve API icindeki listeleme/dashboard endpointleri gercekci demo veriyle test edilebilir hale gelir.
+Seeder tamamlandiginda admin panel, storefront ve profile akislarinin tamami gercekci MongoDB verileri ile smoke test edilebilir hale gelir.

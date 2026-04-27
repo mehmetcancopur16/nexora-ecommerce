@@ -46,6 +46,7 @@ function HomeEditorialShowcase() {
         <SurfaceCard className="overflow-hidden border-slate-700/50 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 p-0 text-white shadow-2xl shadow-slate-900/50">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_30%,_var(--tw-gradient-stops))] from-nexora-primary/15 via-transparent to-transparent" aria-hidden="true" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_80%,_var(--tw-gradient-stops))] from-sky-500/10 via-transparent to-transparent" aria-hidden="true" />
+          <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(2,6,23,0.12)_0%,rgba(2,6,23,0)_42%,rgba(2,6,23,0.18)_100%)]" aria-hidden="true" />
 
           <div className="relative grid gap-8 p-8 md:p-10 lg:grid-cols-[1.2fr_0.8fr]">
             <MotionDiv initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.55 }}>
@@ -59,7 +60,12 @@ function HomeEditorialShowcase() {
               />
               <div className="mt-7 flex flex-wrap gap-3">
                 <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }}>
-                  <Button as="link" to="/products" className="gap-2 bg-white text-slate-900 shadow-lg hover:bg-slate-100">
+                  <Button
+                    as="link"
+                    to="/products"
+                    variant="light"
+                    className="gap-2 px-6 py-3.5 text-[0.92rem] font-bold shadow-xl shadow-black/30"
+                  >
                     <Sparkles size={15} />
                     Kampanyaya Git
                   </Button>
@@ -68,8 +74,8 @@ function HomeEditorialShowcase() {
                   <Button
                     as="link"
                     to="/products?search=signature"
-                    variant="ghost"
-                    className="border-slate-500 bg-transparent text-white hover:border-white hover:bg-white/10 hover:text-white"
+                    variant="darkGhost"
+                    className="px-6 py-3.5 text-[0.92rem] font-semibold shadow-lg shadow-black/20"
                   >
                     Signature Ürünleri İncele
                   </Button>

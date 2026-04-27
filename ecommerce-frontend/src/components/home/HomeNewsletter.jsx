@@ -30,6 +30,7 @@ function HomeNewsletter() {
         <SurfaceCard className="relative overflow-hidden rounded-3xl border-slate-700/50 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white shadow-2xl shadow-slate-900/40">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_25%_50%,_var(--tw-gradient-stops))] from-nexora-primary/20 via-transparent to-transparent" aria-hidden="true" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_75%_20%,_var(--tw-gradient-stops))] from-sky-500/10 via-transparent to-transparent" aria-hidden="true" />
+          <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(2,6,23,0.16)_0%,rgba(2,6,23,0)_45%,rgba(2,6,23,0.2)_100%)]" aria-hidden="true" />
 
           <div className="relative grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
             <MotionDiv initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
@@ -70,7 +71,8 @@ function HomeNewsletter() {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full gap-2 bg-white text-slate-900 shadow-md hover:bg-slate-100 disabled:opacity-60 sm:w-auto"
+                  variant="light"
+                  className="w-full gap-2 px-6 py-3.5 text-[0.92rem] font-bold shadow-xl shadow-black/30 disabled:opacity-60 sm:w-auto"
                 >
                   {loading ? "Gönderiliyor..." : "Abone Ol"}
                   {!loading && <Send size={15} />}

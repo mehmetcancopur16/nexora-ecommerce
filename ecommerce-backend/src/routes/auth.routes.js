@@ -109,9 +109,65 @@ router.post("/register", authLimiter, validateBody(registerBodySchema), authCont
  *         description: Başarılı, JWT döner
  *       401:
  *         description: Kimlik doğrulama başarısız
+ *       403:
+ *         description: Hesap pasif veya erişime kapalı
  */
 router.post("/login", authLimiter, validateBody(loginBodySchema), authController.login);
+/**
+ * @openapi
+ * /api/auth/forgot-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Şifre sıfırlama bağlantısı gönderir
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *     responses:
+ *       200:
+ *         description: E-posta gönderim süreci başlatıldı
+ *       400:
+ *         description: Geçersiz veri
+ */
 router.post("/forgot-password", authLimiter, validateBody(forgotPasswordSchema), authController.forgotPassword);
+/**
+ * @openapi
+ * /api/auth/reset-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Token ile şifre sıfırlar
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [token, password, confirmPassword]
+ *             properties:
+ *               token:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *                 minLength: 8
+ *                 description: En az 1 büyük, 1 küçük harf ve 1 rakam içermelidir
+ *               confirmPassword:
+ *                 type: string
+ *                 minLength: 8
+ *     responses:
+ *       200:
+ *         description: Şifre güncellendi
+ *       400:
+ *         description: Geçersiz token veya veri
+ */
 router.post("/reset-password", authLimiter, validateBody(resetPasswordSchema), authController.resetPassword);
 
 module.exports = router;

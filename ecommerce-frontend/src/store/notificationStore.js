@@ -4,7 +4,7 @@ import axiosInstance from "../api/axiosInstance"
 const normalizeError = (error, fallback) =>
   error?.response?.data?.message || error?.message || fallback
 
-export const useNotificationStore = create((set, get) => ({
+export const useNotificationStore = create((set) => ({
   notifications: [],
   unreadCount: 0,
   isLoading: false,

@@ -1,21 +1,26 @@
-# Nexora E-Commerce Platformu
+# Nexora E-Commerce Platform
 
-Nexora, `React + Vite` tabanli frontend ile `Node.js + Express + MongoDB` tabanli backend'i ayni proje altinda calistiran bir e-ticaret uygulamasidir.
+Nexora, React + Vite frontend ile Node.js + Express + MongoDB backend'i ayni monorepo icinde calistiran full-stack e-commerce platformudur.
 
-## Icerik
+## Project Structure
 
-- `ecommerce-frontend`: Magaza arayuzu ve admin ekranlari
-- `ecommerce-backend`: REST API, JWT auth, seeder ve Swagger
+- `ecommerce-frontend`: Storefront + profile + admin UI
+- `ecommerce-backend`: REST API, auth, business logic, Swagger, seeder
 
-## Gereksinimler
+## Architecture Overview
 
-- Node.js 18+ (onerilen: LTS)
-- npm 9+
-- Calisan bir MongoDB instance'i (lokal veya uzak)
+- Frontend, `axios` ile backend API'lerine baglanir.
+- Backend, JWT bearer auth + role kontrolu ile endpoint'leri korur.
+- Tüm domain verisi MongoDB/Mongoose uzerinden yonetilir.
+- Swagger spec runtime'da uretilir ve `/api-docs` altinda sunulur.
 
-## Kurulum
+## Requirements
 
-Repo kokeni: `nexora-ecommerce`
+- Node.js 20+ (recommended LTS)
+- npm 10+
+- MongoDB instance (local or remote)
+
+## Installation
 
 ```bash
 npm install
@@ -23,88 +28,91 @@ cd ecommerce-backend && npm install
 cd ../ecommerce-frontend && npm install
 ```
 
-## Ortam Degiskenleri
+## Environment Setup
 
 ### Backend
-
-`ecommerce-backend/.env.example` dosyasini kopyalayin:
 
 ```bash
 cd ecommerce-backend
 cp .env.example .env
 ```
 
-Zorunlu alanlar:
+Required core variables:
 
-- `PORT` (varsayilan `5000`)
+- `PORT` (default `5000`)
 - `MONGO_URI`
 - `JWT_SECRET`
+- `JWT_EXPIRES_IN`
 - `NODE_ENV`
+- `CORS_ORIGINS`
 
 ### Frontend
-
-`ecommerce-frontend/.env.example` dosyasini kopyalayin:
 
 ```bash
 cd ecommerce-frontend
 cp .env.example .env
 ```
 
-Onerilen alan:
+Important variables:
 
 - `VITE_API_BASE_URL=http://localhost:5000/api`
+- `VITE_AUTH_LOGIN_PATH` (optional)
+- `VITE_AUTH_REGISTER_PATH` (optional)
 
-## Veritabani Demo Verisi (Seeder)
+## Development
 
-Seeder tum temel koleksiyonlari temizleyip yeniden olusturur:
-
-- User
-- Category
-- Product
-- Cart
-- Order
-- Review
-- Wishlist (User dokumaninda tutulur)
-
-Calistirmak icin:
-
-```bash
-cd ecommerce-backend
-npm run seed
-```
-
-Detayli aciklama: `ecommerce-backend/SEEDING.md`
-
-## Gelistirme Modunda Calistirma
-
-Kok dizinde:
+Run frontend + backend together from repository root:
 
 ```bash
 npm run dev
 ```
 
-Bu komut ayni anda:
+Default local URLs:
 
-- Backend: `http://localhost:5000`
 - Frontend: `http://localhost:5173`
+- Backend: `http://localhost:5000`
+- Swagger UI: `http://localhost:5000/api-docs`
 
-## API Dokumantasyonu (Swagger)
+## Seeding and Test Dataset
 
-Backend ayaga kalktiktan sonra:
+Comprehensive E2E dataset commands:
+
+```bash
+npm run seed
+npm run seed:e2e
+npm run seed:safe
+```
+
+Seeder details: `ecommerce-backend/SEEDING.md`
+
+## API Documentation
 
 - Swagger UI: `http://localhost:5000/api-docs`
 - OpenAPI JSON: `http://localhost:5000/api-docs.json`
 - Health: `http://localhost:5000/api/health`
 
-Detayli endpoint rehberi: `ecommerce-backend/API.md`
+Route-level details: `ecommerce-backend/API.md`
 
-## Sik Karsilasilan Sorunlar
+## Quality and Testing Status
 
-- `MONGO_URI tanimli degil`:
-  - `ecommerce-backend/.env` olusturun ve `MONGO_URI` degerini doldurun.
-- `EADDRINUSE`:
-  - Portu kullanan sureci kapatin veya `PORT` degerini degistirin.
-- Frontend API'ye ulasamiyor:
-  - `VITE_API_BASE_URL` degerini backend URL'i ile esleyin.
-- Auth hatalari:
-  - `JWT_SECRET` sabit degisirse mevcut tokenlar gecersiz olur; tekrar giris yapin.
+- Frontend quality gate: `npm run lint` + `npm run build`
+- Backend quality gate: syntax/runtime checks + API smoke tests
+- Automated backend/frontend test suites are currently placeholder-level in package scripts; smoke-driven verification is used.
+
+## Deployment Notes
+
+- Build frontend with `npm run build` in `ecommerce-frontend`.
+- Run backend with `npm start` in `ecommerce-backend`.
+- Ensure reverse proxy/CORS configuration matches production domains.
+- Keep `JWT_SECRET` and DB credentials in secure secret storage.
+
+## Troubleshooting
+
+- Frontend cannot reach API:
+  - Verify `VITE_API_BASE_URL` points to backend host/port (`5000` by default).
+- `MONGO_URI` errors:
+  - Confirm `.env` exists in backend and MongoDB is reachable.
+- Auth suddenly invalid:
+  - Token invalidation is expected after `JWT_SECRET` changes; login again.
+- Port collision (`EADDRINUSE`):
+  - Stop conflicting process or update `PORT`.
