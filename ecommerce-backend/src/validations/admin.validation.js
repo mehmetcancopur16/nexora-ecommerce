@@ -104,6 +104,41 @@ const reviewModerationBodySchema = z
     message: "Güncelleme için en az bir alan gerekli",
   });
 
+const reportsQuerySchema = z
+  .object({
+    startDate: z
+      .string()
+      .datetime()
+      .optional(),
+    endDate: z
+      .string()
+      .datetime()
+      .optional(),
+    granularity: z.enum(["day", "week", "month"]).optional().default("day"),
+    topLimit: z.preprocess((val) => {
+      if (val === undefined || val === "") return 8;
+      const n = Number(val);
+      return Number.isFinite(n) ? n : 8;
+    }, z.number().int().min(1).max(50)),
+    tz: z.string().trim().min(1).max(64).optional().default("Europe/Istanbul"),
+    comparePrevious: z.preprocess((val) => {
+      if (val === undefined || val === "") return false;
+      if (typeof val === "boolean") return val;
+      if (typeof val === "string") return val.toLowerCase() === "true";
+      return false;
+    }, z.boolean()),
+  })
+  .refine(
+    (data) => {
+      if (!data.startDate || !data.endDate) return true;
+      return new Date(data.startDate).getTime() <= new Date(data.endDate).getTime();
+    },
+    {
+      message: "startDate endDate'den büyük olamaz",
+      path: ["startDate"],
+    }
+  );
+
 const supportStatusBodySchema = z.object({
   adminStatus: z.enum(["open", "in_progress", "resolved"]),
 });
@@ -133,6 +168,7 @@ module.exports = {
   couponBodySchema,
   couponUpdateBodySchema,
   reviewModerationBodySchema,
+  reportsQuerySchema,
   supportStatusBodySchema,
   storeSettingsBodySchema,
 };

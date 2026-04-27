@@ -316,18 +316,59 @@ exports.deleteAdminReview = asyncHandler(async (req, res) => {
   res.json({ success: true, message: "Yorum silindi" });
 });
 
-exports.getAdminReports = asyncHandler(async (_req, res) => {
-  const now = new Date();
-  const thirtyDaysAgo = new Date(now);
-  thirtyDaysAgo.setDate(now.getDate() - 30);
+exports.getAdminReports = asyncHandler(async (req, res) => {
+  const { startDate, endDate, granularity = "day", topLimit = 8, tz = "Europe/Istanbul", comparePrevious = false } = req.query;
 
-  const [dailySales, topProducts, categorySales, paymentStatusStats, lowStockCount, openSupportCount] =
+  const end = endDate ? new Date(endDate) : new Date();
+  const start = startDate ? new Date(startDate) : new Date(end.getTime() - 29 * 24 * 60 * 60 * 1000);
+
+  let groupFormat = "%Y-%m-%d";
+  let incrementDays = 1;
+  if (granularity === "week") {
+    groupFormat = "%G-W%V";
+    incrementDays = 7;
+  } else if (granularity === "month") {
+    groupFormat = "%Y-%m";
+    incrementDays = 30;
+  }
+
+  const paidRangeMatch = {
+    paymentStatus: "paid",
+    createdAt: {
+      $gte: start,
+      $lte: end,
+    },
+  };
+  const allRangeMatch = {
+    createdAt: {
+      $gte: start,
+      $lte: end,
+    },
+  };
+
+  const [salesSummary, dailySalesRaw, topProducts, categorySales, paymentStatusStats, lowStockCount, openSupportCount] =
     await Promise.all([
       Order.aggregate([
-        { $match: { createdAt: { $gte: thirtyDaysAgo }, paymentStatus: "paid" } },
+        { $match: paidRangeMatch },
         {
           $group: {
-            _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+            _id: null,
+            totalRevenue: { $sum: "$totalAmount" },
+            paidOrders: { $sum: 1 },
+          },
+        },
+      ]),
+      Order.aggregate([
+        { $match: paidRangeMatch },
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: groupFormat,
+                date: "$createdAt",
+                timezone: tz,
+              },
+            },
             revenue: { $sum: "$totalAmount" },
             orders: { $sum: 1 },
           },
@@ -335,7 +376,7 @@ exports.getAdminReports = asyncHandler(async (_req, res) => {
         { $sort: { _id: 1 } },
       ]),
       Order.aggregate([
-        { $match: { paymentStatus: "paid" } },
+        { $match: paidRangeMatch },
         { $unwind: "$items" },
         {
           $group: {
@@ -345,7 +386,7 @@ exports.getAdminReports = asyncHandler(async (_req, res) => {
           },
         },
         { $sort: { soldUnits: -1 } },
-        { $limit: 8 },
+        { $limit: topLimit },
         {
           $lookup: {
             from: "products",
@@ -365,27 +406,50 @@ exports.getAdminReports = asyncHandler(async (_req, res) => {
           },
         },
       ]),
-      Product.aggregate([
-        { $match: { isActive: true } },
+      Order.aggregate([
+        { $match: paidRangeMatch },
+        { $unwind: "$items" },
+        {
+          $group: {
+            _id: "$items.product",
+            soldUnits: { $sum: "$items.quantity" },
+            revenue: { $sum: { $multiply: ["$items.quantity", "$items.price"] } },
+          },
+        },
+        {
+          $lookup: {
+            from: "products",
+            localField: "_id",
+            foreignField: "_id",
+            as: "product",
+          },
+        },
+        { $unwind: "$product" },
         {
           $lookup: {
             from: "categories",
-            localField: "category",
+            localField: "product.category",
             foreignField: "_id",
             as: "category",
           },
         },
-        { $unwind: "$category" },
         {
-          $group: {
-            _id: "$category.name",
-            count: { $sum: 1 },
-            stockTotal: { $sum: "$stock" },
+          $unwind: {
+            path: "$category",
+            preserveNullAndEmptyArrays: true,
           },
         },
-        { $sort: { count: -1 } },
+        {
+          $group: {
+            _id: { $ifNull: ["$category.name", "Uncategorized"] },
+            soldUnits: { $sum: "$soldUnits" },
+            revenue: { $sum: "$revenue" },
+          },
+        },
+        { $sort: { revenue: -1 } },
       ]),
       Order.aggregate([
+        { $match: allRangeMatch },
         { $group: { _id: "$paymentStatus", count: { $sum: 1 } } },
         { $project: { _id: 0, status: "$_id", count: 1 } },
       ]),
@@ -393,10 +457,104 @@ exports.getAdminReports = asyncHandler(async (_req, res) => {
       ContactMessage.countDocuments({ adminStatus: { $in: ["open", "in_progress"] } }),
     ]);
 
+  const bucketMap = new Map(dailySalesRaw.map((item) => [item._id, item]));
+  const normalizedDailySales = [];
+  let cursor = new Date(start);
+  while (cursor <= end) {
+    const key = (() => {
+      if (granularity === "month") return cursor.toISOString().slice(0, 7);
+      if (granularity === "week") {
+        const temp = new Date(cursor);
+        const dayNum = (temp.getUTCDay() + 6) % 7;
+        temp.setUTCDate(temp.getUTCDate() + 3 - dayNum);
+        const isoYear = temp.getUTCFullYear();
+        const yearStart = new Date(Date.UTC(isoYear, 0, 4));
+        const weekNo = Math.ceil((((temp - yearStart) / 86400000) + 1) / 7);
+        return `${isoYear}-W${String(weekNo).padStart(2, "0")}`;
+      }
+      return cursor.toISOString().slice(0, 10);
+    })();
+
+    const row = bucketMap.get(key);
+    normalizedDailySales.push({
+      _id: key,
+      revenue: row?.revenue || 0,
+      orders: row?.orders || 0,
+    });
+    cursor.setDate(cursor.getDate() + incrementDays);
+  }
+
+  const summary = salesSummary[0] || { totalRevenue: 0, paidOrders: 0 };
+  const totalOrdersInRange = paymentStatusStats.reduce((acc, item) => acc + item.count, 0);
+  const averageOrderValue = summary.paidOrders > 0 ? summary.totalRevenue / summary.paidOrders : 0;
+  const paidRate = totalOrdersInRange > 0 ? (summary.paidOrders / totalOrdersInRange) * 100 : 0;
+
+  let previousPeriod = null;
+  if (comparePrevious) {
+    const rangeMs = end.getTime() - start.getTime();
+    const prevEnd = new Date(start.getTime() - 1);
+    const prevStart = new Date(prevEnd.getTime() - rangeMs);
+    const [prevSummaryRaw, prevStatusRaw] = await Promise.all([
+      Order.aggregate([
+        {
+          $match: {
+            paymentStatus: "paid",
+            createdAt: { $gte: prevStart, $lte: prevEnd },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalRevenue: { $sum: "$totalAmount" },
+            paidOrders: { $sum: 1 },
+          },
+        },
+      ]),
+      Order.aggregate([
+        { $match: { createdAt: { $gte: prevStart, $lte: prevEnd } } },
+        { $group: { _id: null, total: { $sum: 1 } } },
+      ]),
+    ]);
+
+    const prevSummary = prevSummaryRaw[0] || { totalRevenue: 0, paidOrders: 0 };
+    const prevTotalOrders = prevStatusRaw[0]?.total || 0;
+    const prevAov = prevSummary.paidOrders > 0 ? prevSummary.totalRevenue / prevSummary.paidOrders : 0;
+    const prevPaidRate = prevTotalOrders > 0 ? (prevSummary.paidOrders / prevTotalOrders) * 100 : 0;
+
+    previousPeriod = {
+      start: prevStart.toISOString(),
+      end: prevEnd.toISOString(),
+      totalRevenue: prevSummary.totalRevenue,
+      paidOrders: prevSummary.paidOrders,
+      averageOrderValue: prevAov,
+      paidRate: prevPaidRate,
+      deltaRevenue: summary.totalRevenue - prevSummary.totalRevenue,
+      deltaOrders: summary.paidOrders - prevSummary.paidOrders,
+      deltaAverageOrderValue: averageOrderValue - prevAov,
+      deltaPaidRate: paidRate - prevPaidRate,
+    };
+  }
+
   res.json({
     success: true,
     data: {
-      dailySales,
+      filters: {
+        startDate: start.toISOString(),
+        endDate: end.toISOString(),
+        granularity,
+        topLimit,
+        tz,
+        comparePrevious: Boolean(comparePrevious),
+      },
+      summary: {
+        totalRevenue: summary.totalRevenue,
+        paidOrders: summary.paidOrders,
+        totalOrdersInRange,
+        averageOrderValue,
+        paidRate,
+      },
+      previousPeriod,
+      dailySales: normalizedDailySales,
       topProducts,
       categorySales,
       paymentStatusStats,

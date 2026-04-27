@@ -14,6 +14,7 @@ const {
   couponBodySchema,
   couponUpdateBodySchema,
   reviewModerationBodySchema,
+  reportsQuerySchema,
   supportStatusBodySchema,
   storeSettingsBodySchema,
 } = require("../validations/admin.validation");
@@ -227,7 +228,54 @@ router.patch(
 );
 router.delete("/reviews/:id", validateParams(adminEntityIdParamSchema), adminController.deleteAdminReview);
 
-router.get("/reports", adminController.getAdminReports);
+/**
+ * @openapi
+ * /api/admin/reports:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Satış odaklı admin raporlarını getir
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *       - in: query
+ *         name: granularity
+ *         schema:
+ *           type: string
+ *           enum: [day, week, month]
+ *           default: day
+ *       - in: query
+ *         name: topLimit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 50
+ *           default: 8
+ *       - in: query
+ *         name: comparePrevious
+ *         schema:
+ *           type: boolean
+ *           default: false
+ *     responses:
+ *       200:
+ *         description: Başarılı
+ *       400:
+ *         description: Geçersiz query parametreleri
+ *       401:
+ *         description: Yetkisiz
+ *       403:
+ *         description: Admin yetkisi gerekli
+ */
+router.get("/reports", validateQuery(reportsQuerySchema), adminController.getAdminReports);
 
 router.get("/settings", adminController.getStoreSettings);
 router.patch("/settings", validateBody(storeSettingsBodySchema), adminController.updateStoreSettings);
